@@ -738,6 +738,8 @@ in {
           clientSecretHash = dummyHash;
         };
       };
+
+      yopass.enable = true;
     };
   };
 }

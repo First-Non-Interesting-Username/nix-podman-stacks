@@ -67,6 +67,7 @@ let
     webtop = ./webtop;
     wg-easy = ./wg-easy;
     wg-portal = ./wg-portal;
+    yopass = ./yopass;
   };
 in
   modules
