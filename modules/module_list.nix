@@ -35,6 +35,7 @@ let
     hortusfox = ./hortusfox;
     immich = ./immich;
     ittools = ./it-tools;
+    jotty = ./jotty;
     karakeep = ./karakeep;
     kimai = ./kimai;
     kitchenowl = ./kitchenowl;

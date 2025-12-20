@@ -363,6 +363,15 @@ in {
 
       ittools.enable = true;
 
+      jotty = {
+        enable = true;
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyHash;
+        };
+      };
+
       karakeep = {
         enable = true;
         oidc = {
