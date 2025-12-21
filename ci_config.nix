@@ -498,6 +498,17 @@ in {
 
       networking-toolbox.enable = true;
 
+      norish = {
+        enable = true;
+        masterKeyFile = dummySecretFile;
+        db.passwordFile = dummySecretFile;
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyHash;
+        };
+      };
+
       ntfy = {
         enable = true;
         extraEnv = {

@@ -1,5 +1,5 @@
 /*
-Some services don't have built-in auth or support OICD
+Some services don't have built-in auth or support OIDC
 If you still want to protect them, it is possible by utilizing Traefiks ForwardAuth middleware in combination with Authelia.
 
 Rules can be either configured through the authelia settings options, or at container level.

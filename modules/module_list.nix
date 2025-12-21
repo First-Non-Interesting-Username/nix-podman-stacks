@@ -48,6 +48,7 @@ let
     monitoring = ./monitoring;
     n8n = ./n8n;
     networking-toolbox = ./networking-toolbox;
+    norish = ./norish;
     ntfy = ./ntfy;
     omnitools = ./omnitools;
     outline = ./outline;
