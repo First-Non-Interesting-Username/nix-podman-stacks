@@ -4,6 +4,7 @@
   inputs,
   lib,
   system,
+  optionsJSON,
   ...
 }: let
   eval = lib.evalModules {
@@ -13,137 +14,161 @@
       self.homeModules.nps
     ];
   };
-  gitHubDeclaration = user: repo: branch: subpath: {
-    url = "https://github.com/${user}/${repo}/blob/${branch}/${subpath}";
-    name = "<${repo}/${subpath}>";
+
+  filteredOptions = pkgs.nixosOptionsDoc {
+    documentType = "none";
+    warningsAreErrors = false;
+    inherit (eval) options;
   };
 
-  nixPodmanStacksPath = toString self;
-  hmPath = toString inputs.home-manager;
-  hasAnyLocPrefix = prefixes: loc:
-    lib.any (prefix: hasLocPrefix prefix loc) prefixes;
-  hasLocPrefix = prefix: loc: lib.lists.take (lib.length prefix) loc == prefix;
+  stackNames = lib.attrNames eval.options.nps.stacks;
 
-  mkOptionsDoc = {
-    options ? eval.options,
-    wantPrefix ? [],
-    excludePrefix ? [],
-  }:
-    pkgs.nixosOptionsDoc {
-      documentType = "none";
-      warningsAreErrors = false;
+  mkStackOptionsFile = stack: ''
+    echo "# ${stack}" > ./stacks/${stack}.md
 
-      inherit options;
+    if [ -d "${self}/modules/${stack}" ]; then
+      cat ${self}/modules/${stack}/*.md >> ./stacks/${stack}.md
+    fi
 
-      transformOptions = option:
-        option
-        // {
-          visible =
-            option.visible
-            && option.loc
-            != [
-              "services"
-              "podman"
-              "containers"
-            ]
-            && (lib.hasPrefix nixPodmanStacksPath (toString option.declarations))
-            && (wantPrefix == [] || hasAnyLocPrefix wantPrefix option.loc)
-            && !(excludePrefix != [] && hasAnyLocPrefix excludePrefix option.loc);
+    cat >> ./stacks/${stack}.md <<'EOF'
+    <script setup>
+      import { data } from "../nps.data.ts";
+      import { RenderDocs } from "easy-nix-documentation";
+    </script>
+
+    ## Stack Options
+    <RenderDocs :options="data" :include="/nps\.stacks\.${stack}\.*/" />
+    EOF
+  '';
+  stackItems =
+    map (stack: {
+      text = stack;
+      link = "/stacks/${stack}";
+    })
+    stackNames;
+
+  vitepressConfig = builtins.toJSON {
+    title = "Nix Podman Stacks";
+
+    description = "";
+
+    themeConfig = {
+      sidebar = [
+        {
+          items = [
+            {
+              text = "Home";
+              link = "/index";
+            }
+            {
+              text = "Getting Started";
+              link = "/getting-started";
+            }
+          ];
         }
-        // {
-          declarations =
-            map (
-              decl:
-                if lib.hasPrefix nixPodmanStacksPath (toString decl)
-                then
-                  gitHubDeclaration "tarow" "nix-podman-stacks" "main" (
-                    lib.removePrefix "/" (lib.removePrefix nixPodmanStacksPath (toString decl))
-                  )
-                else if lib.hasPrefix hmPath (toString decl)
-                then
-                  gitHubDeclaration "nix-community" "home-manager" "master" (
-                    lib.removePrefix "/" (lib.removePrefix hmPath (toString decl))
-                  )
-                else null
-            )
-            option.declarations
-            |> lib.filter (d: d != null);
-        };
+        {
+          text = "Options";
+          items = [
+            {
+              text = "Settings";
+              link = "/settings-options";
+            }
+            {
+              text = "Container Options";
+              link = "/container-options";
+            }
+            {
+              text = "Stacks";
+              collapsed = false;
+              items = stackItems;
+            }
+          ];
+        }
+        {
+          items = [
+            {
+              text = "Examples";
+              link = "/examples";
+            }
+          ];
+        }
+      ];
+
+      socialLinks = [
+        {
+          icon = "github";
+          link = "https://github.com/Tarow/nix-podman-stacks";
+        }
+      ];
+
+      outline = {
+        level = "deep";
+      };
     };
-  settingsOptions = mkOptionsDoc {
-    wantPrefix = [["nps"]];
-    excludePrefix = [
-      [
-        "nps"
-        "stacks"
-      ]
-      ["nps" "containers"]
-    ];
-  };
-  containerOptions = mkOptionsDoc {
-    wantPrefix = [
-      [
-        "services"
-        "podman"
-      ]
-    ];
+
+    vite = {
+      ssr = {
+        noExternal = "easy-nix-documentation";
+      };
+    };
   };
 
-  stackDocs = let
-    stackNames = lib.attrNames eval.options.nps.stacks;
-  in
-    stackNames
-    |> lib.map (
-      stack: (lib.nameValuePair stack (mkOptionsDoc {
-        wantPrefix = [
-          [
-            "nps"
-            "stacks"
-            stack
-          ]
-        ];
-      }))
-    )
-    |> lib.listToAttrs;
+  mkVitepressConfig = pkgs.writeText "vitepress-config.mts" ''
+    import { defineConfig } from "vitepress";
+    import { pagefindPlugin } from 'vitepress-plugin-pagefind'
+    // https://vitepress.dev/reference/site-config
+    const baseConfig = ${vitepressConfig};
+
+    export default defineConfig({
+      ...baseConfig,
+      vite: {
+        ...baseConfig.vite,
+        plugins: [pagefindPlugin()],
+      },
+    });
+  '';
 in {
-  book = pkgs.stdenv.mkDerivation {
-    pname = "nix-podman-stacks-docs-book";
-    version = "0.0.1";
-    src = self;
+  inherit (filteredOptions) optionsJSON;
 
-    nativeBuildInputs = with pkgs; [
-      mdbook
-      mdbook-alerts
-      mdbook-linkcheck
-    ];
+  book = pkgs.buildNpmPackage {
+    name = "nps-docs";
+    src = ./book;
 
-    dontConfigure = true;
-    dontFixup = true;
+    npmDeps = pkgs.importNpmLock {
+      npmRoot = ./book;
+    };
+
+    inherit (pkgs.importNpmLock) npmConfigHook;
+    env.NPS_OPTIONS_JSON = optionsJSON;
 
     buildPhase = ''
       runHook preBuild
-      mkdir -p src/images
 
-      cp docs/mdbook/book.toml .
-      cp docs/mdbook/src/* src/
-      cp ${self}/README.md src/introduction.md
-      cp ${self}/images/* src/images/
-      cat ${settingsOptions.optionsCommonMark} >> src/settings-options.md
-      cat ${containerOptions.optionsCommonMark} >> src/container-options.md
+        cp -r ${self}/images .
 
-      # Generate a subpage for each stack
-      ${lib.concatMapAttrsStringSep "\n" (stack: opts: ''
-          cat ${opts.optionsCommonMark} > src/stack-${stack}-options.md
-          echo "  - [${stack}](./stack-${stack}-options.md)" >> src/SUMMARY.md
-        '')
-        stackDocs}
-      mdbook build
+        mkdir .vitepress
+        cp ${mkVitepressConfig} .vitepress/config.mts
+
+        mkdir -p ./stacks
+        ${lib.concatMapStrings mkStackOptionsFile stackNames}
+
+        # VitePress hangs if you don't pipe the output into a file
+        local exit_status=0
+        npm run build > build.log 2>&1 || {
+            exit_status=$?
+            :
+        }
+        cat build.log
+        return $exit_status
+
       runHook postBuild
     '';
 
     installPhase = ''
       runHook preInstall
-      mv book/html $out
+
+      mv .vitepress/dist $out
+
       runHook postInstall
     '';
   };

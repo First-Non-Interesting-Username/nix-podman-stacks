@@ -25,8 +25,16 @@ in {
 
       aiostreams = {
         enable = true;
+        secretKeyFile = dummySecretFile;
         extraEnv = {
-          SECRET_KEY.fromFile = dummySecretFile;
+          TMDB_ACCESS_TOKEN.fromFile = dummySecretFile;
+        };
+      };
+
+      audiobookshelf = {
+        oidc = {
+          registerClient = true;
+          clientSecretHash = dummyHash;
         };
       };
 
@@ -96,7 +104,7 @@ in {
 
       bytestash = {
         enable = true;
-        extraEnv.JWT_SECRET.fromFile = dummySecretFile;
+        jwtSecretFile = dummySecretFile;
       };
 
       booklore = {
@@ -210,6 +218,8 @@ in {
         settings.auth.methods.password.enabled = false;
       };
 
+      flaresolverr.enable = true;
+
       forgejo = {
         enable = true;
         settings = {
@@ -239,6 +249,17 @@ in {
           type = "postgres";
           passwordFile = dummySecretFile;
         };
+
+        settings.endpoints = [
+          {
+            name = "Some website";
+            url = "https://example.com";
+            client.dns-resolver = "tcp://1.1.1.1:53";
+            conditions = [
+              "[STATUS] == 200"
+            ];
+          }
+        ];
 
         oidc = {
           enable = true;
@@ -361,7 +382,7 @@ in {
         dbPasswordFile = dummySecretFile;
       };
 
-      ittools.enable = true;
+      it-tools.enable = true;
 
       jotty = {
         enable = true;
@@ -737,8 +758,8 @@ in {
 
       wg-easy = {
         enable = true;
+        adminPasswordFile = dummySecretFile;
         extraEnv = {
-          INIT_PASSWORD.fromFile = dummySecretFile;
           DISABLE_IPV6 = true;
         };
       };
