@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}: {
+{config, ...}: {
   nps = {
     hostIP4Address = "192.168.178.2";
     hostUid = 1000;
