@@ -13,8 +13,8 @@
     dbPasswordFile = config.sops.secrets."immich/db_password".path;
 
     settings = {
-      oauth.autoLaunch = lib.mkForce true;
-      passwordLogin.enabled = lib.mkForce false;
+      oauth.autoLaunch = true;
+      passwordLogin.enabled = false;
     };
   };
 }

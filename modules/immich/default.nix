@@ -180,7 +180,8 @@ in {
     };
 
     nps.stacks.${name}.settings = lib.mkMerge [
-      (import ./config.nix)
+      (import ./config.nix |> lib.mapAttrsRecursive (_: lib.mkDefault))
+
       # If Authelia is enabled, config will be templated with gomplate. Avoid rendering issues due to double curly braces
       {
         storageTemplate.template = let
@@ -193,8 +194,8 @@ in {
       (lib.optionalAttrs cfg.oidc.enable {
         oauth = {
           enabled = true;
-          autoLaunch = false;
-          autoRegister = true;
+          autoLaunch = lib.mkDefault false;
+          autoRegister = lib.mkDefault true;
           buttonText = "Login with Authelia";
           clientId = name;
           clientSecret = ''{{ file.Read `${cfg.oidc.clientSecretFile}`}}'';
