@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   name = "guacamole";
@@ -21,12 +22,28 @@ in {
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
     userMappingXml = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = ''
-        Path to file that is provided as the `user-mapping.xml`.
+        The `user-mapping.xml`.
+        The final configuration file will be templated with `gomplate`, so secrets can be read from files or environment variables for example.
 
         See <https://guacamole.apache.org/doc/gug/configuring-guacamole.html#user-mapping-xml>
+      '';
+
+      example = lib.literalExpression ''
+        <user-mapping>
+          <authorize username="example_user" password="{{ file.Read `''${config.sops.secrets."guacamole_password".path}`}}">
+            <connection name="Host SSH">
+                <protocol>ssh</protocol>
+                <param name="hostname">host.containers.internal</param>
+                <param name="port">22</param>
+                <param name="username">hostuser</param>
+                <param name="private-key">{{ file.Read `''${config.sops.secrets."guacamole/ssh_private_key".path}` }}</param>
+                <param name="command">bash</param>
+            </connection>
+          </authorize>
+        </user-mapping>
       '';
     };
     oidc = {
@@ -106,8 +123,10 @@ in {
           GUACD_HOSTNAME = guacdName;
           WEBAPP_CONTEXT = "ROOT";
         };
-        volumes = lib.optional (cfg.userMappingXml != null) "${cfg.userMappingXml}:/etc/guacamole/user-mapping.xml";
-
+        templateMount = lib.optional (cfg.userMappingXml != null) {
+          templatePath = pkgs.writeText "user-mapping.xml" cfg.userMappingXml;
+          destPath = "/etc/guacamole/user-mapping.xml";
+        };
         extraEnv = let
           autheliaUrl = config.nps.containers.authelia.traefik.serviceUrl;
           utils = import ../utils.nix {inherit lib config;};

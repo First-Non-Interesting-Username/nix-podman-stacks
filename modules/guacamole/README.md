@@ -1,5 +1,28 @@
 ## Example
 
+### User-Mapping XML
+
+```nix
+{config, ...}: {
+  userMappingXml = ''
+    <user-mapping>
+      <authorize username="example_user" password="{{ file.Read `${config.sops.secrets."guacamole_password".path}`}}">
+        <connection name="Host SSH">
+            <protocol>ssh</protocol>
+            <param name="hostname">host.containers.internal</param>
+            <param name="port">22</param>
+            <param name="username">hostuser</param>
+            <param name="private-key">{{ file.Read `${config.sops.secrets."guacamole/ssh_private_key".path}` }}</param>
+            <param name="command">bash</param>
+        </connection>
+      </authorize>
+    </user-mapping>
+  '';
+}
+```
+
+### OIDC
+
 ```nix
 {config, ...}: {
   guacamole = {
