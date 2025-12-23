@@ -29,7 +29,7 @@
 ### With Prometheus Rules + Ntfy Alerting
 
 ```nix
-{
+{config, ...}: {
   monitoring = {
     monitoring.enable = true;
 
