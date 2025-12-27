@@ -12,7 +12,7 @@
 
   category = "Media & Downloads";
   description = "Book Collection Manager";
-  displayName = "booklore";
+  displayName = "Booklore";
 in {
   imports = import ../mkAliases.nix config lib name [
     name
