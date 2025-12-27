@@ -7,6 +7,8 @@
   dbName = "${name}-db";
   brokerName = "${name}-broker";
   ftpName = "${name}-ftp";
+  gotenbergName = "${name}-gotenberg";
+  tikaName = "${name}-tika";
 
   cfg = config.nps.stacks.${name};
   storage = "${config.nps.storageBaseDir}/${name}";
@@ -24,6 +26,15 @@ in {
 
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
+    enableTika = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Whether to enable Tika and Gotenberg to process Office and e-mail files with OCR.
+
+        See <https://docs.paperless-ngx.com/configuration/#tika>
+      '';
+    };
     secretKeyFile = lib.mkOption {
       type = lib.types.path;
       description = ''
@@ -188,6 +199,11 @@ in {
             PAPERLESS_ADMIN_MAIL = cfg.adminProvisioning.email;
             PAPERLESS_ADMIN_PASSWORD.fromFile = cfg.adminProvisioning.passwordFile;
           }
+          // lib.optionalAttrs cfg.enableTika {
+            PAPERLESS_TIKA_ENABLED = true;
+            PAPERLESS_TIKA_ENDPOINT = "http://${tikaName}:9998";
+            PAPERLESS_TIKA_GOTENBERG_ENDPOINT = "http://${gotenbergName}:3000";
+          }
           // lib.optionalAttrs cfg.oidc.enable {
             PAPERLESS_APPS = "allauth.socialaccount.providers.openid_connect";
             PAPERLESS_SOCIALACCOUNT_PROVIDERS.fromTemplate = let
@@ -262,6 +278,31 @@ in {
           parent = name;
           name = "Postgres";
           icon = "di:postgres";
+          inherit category;
+        };
+      };
+
+      ${tikaName} = lib.mkIf cfg.enableTika {
+        image = "docker.io/apache/tika:3.2.3.0";
+
+        stack = name;
+        glance = {
+          parent = name;
+          name = "Tika";
+          icon = "sh:apache-tika";
+          inherit category;
+        };
+      };
+
+      ${gotenbergName} = lib.mkIf cfg.enableTika {
+        image = "docker.io/gotenberg/gotenberg:8.25.1";
+        exec = "gotenberg --chromium-disable-javascript=true --chromium-allow-list=file:///tmp/.*";
+
+        stack = name;
+        glance = {
+          parent = name;
+          name = "Gotenberg";
+          icon = "di:gotenberg";
           inherit category;
         };
       };
