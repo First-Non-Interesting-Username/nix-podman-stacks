@@ -732,7 +732,14 @@ in {
 
       uptime-kuma.enable = true;
 
-      vaultwarden.enable = true;
+      vaultwarden = {
+        enable = true;
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyHash;
+        };
+      };
 
       vikunja = {
         enable = true;
