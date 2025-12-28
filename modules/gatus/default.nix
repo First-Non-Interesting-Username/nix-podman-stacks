@@ -86,7 +86,7 @@ in {
       clientSecretFile = lib.mkOption {
         type = lib.types.str;
         description = ''
-          The file containing the client secret for the Gatus OIDC client that will be registered in Authelia.
+          The file containing the client secret for the OIDC client that will be registered in Authelia.
         '';
       };
       clientSecretHash = lib.mkOption {
