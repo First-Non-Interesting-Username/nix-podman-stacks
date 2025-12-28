@@ -102,7 +102,7 @@ In case of conflicting definitions, instead of overriding all attributes of an a
 
 ### Forward Auth
 
-Some services don't have built-in auth or support OIDC
+Some services don't have built-in auth or support OIDC.
 If you still want to protect them, it is possible by utilizing Traefiks ForwardAuth middleware in combination with Authelia.
 
 Rules can be either configured through Authelia settings options, or at container level.
