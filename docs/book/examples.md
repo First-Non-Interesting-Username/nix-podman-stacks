@@ -450,3 +450,38 @@ When changing a service from public to private, the DNS entry can be automatical
   };
 }
 ```
+
+### Start Containers after Sops Secret Provisioning
+
+If you use use [sops-nix](https://github.com/Mic92/sops-nix) to provide secrets for your services, you want to make sure the container starts after sops has provisioned the secrets to avoid a race condition.
+
+This can be done by adding a systemd dependency to a particular service. For example, to start the Paperless service after sops has decrypted the secrets:
+
+```nix
+{
+  nps.stacks.paperless.containers.paperless = {
+    extraConfig.Unit = {
+      Wants = ["sops-nix.service"];
+      After = ["sops-nix.service"];
+    };
+  };
+}
+```
+
+Instead of individually configuring every service like this, you can also include this module to declare the dependency for every container automatially:
+
+```nix
+{
+  # Make sure every container starts after the sops-nix service
+  options.services.podman.containers = lib.mkOption {
+    type = lib.types.attrsOf (
+      lib.types.submodule ({config, ...}: {
+        extraConfig.Unit = {
+          Wants = ["sops-nix.service"];
+          After = ["sops-nix.service"];
+        };
+      })
+    );
+  };
+}
+```
