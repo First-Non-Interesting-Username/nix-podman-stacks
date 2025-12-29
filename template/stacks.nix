@@ -43,7 +43,7 @@
           clientSecretFile = config.sops.secrets."immich/authelia_client_secret".path;
           clientSecretHash = "$pbkdf2-sha512$310000$CmFYHZTQ0aMd9P/RaFJjrw$7Mht0oY97PDzdLP6GbEKB1dZ1ZQeL66TjrfhjyV0sWOtGKDxkyTcUFfIEh/bzPKM2Bs4.BCmZZWkYiKZ2E0T5Q";
         };
-        dbPasswordFile = config.sops.secrets."immich/db_password".path;
+        db.passwordFile = config.sops.secrets."immich/db_password".path;
       };
 
       lldap = {
