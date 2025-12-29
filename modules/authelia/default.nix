@@ -28,6 +28,14 @@
   oidcEnabled = cfg.oidc.enable && (lib.length (lib.attrValues cfg.oidc.clients) > 0);
   container = cfg.containers.${name};
   lldap = config.nps.stacks.lldap;
+
+  mkClientSecretFileDest = clientName: "/secrets/oidc/clients/${clientName}";
+  isAbsolutePath = p: builtins.substring 0 1 (toString p) == "/";
+  mappedOidcClients = lib.mapAttrs (k: v:
+    if v.client_secret != null && isAbsolutePath v.client_secret
+    then v // {client_secret = "{{ fileContent `${mkClientSecretFileDest k}` }}";}
+    else v)
+  cfg.oidc.clients;
 in {
   imports = [./extension.nix] ++ import ../mkAliases.nix config lib name [name redisName];
 
@@ -101,6 +109,13 @@ in {
                 client_id = lib.mkOption {
                   type = lib.types.str;
                   default = name;
+                };
+                client_secret = lib.mkOption {
+                  type = lib.types.nullOr lib.types.str;
+                  default = null;
+                  description = ''
+                    The client secret. If passed an absolute path, the secret will be read from the file at that path.
+                  '';
                 };
               };
             }
@@ -214,7 +229,7 @@ in {
             id_token = "1h";
             refresh_token = "90m";
           };
-          clients = lib.attrValues cfg.oidc.clients;
+          clients = lib.attrValues mappedOidcClients;
         };
       };
 
@@ -303,7 +318,12 @@ in {
           ++ lib.optionals oidcEnabled [
             "${cfg.oidc.jwksRsaKeyFile}:/secrets/oidc/jwks/rsa.key"
             "${writeOidcJwksConfigFile "/secrets/oidc/jwks/rsa.key"}:/config/jwks_key_config.yml"
-          ];
+          ]
+          ++ (cfg.oidc.clients
+            |> lib.filterAttrs (k: v: v.client_secret != null && isAbsolutePath v.client_secret)
+            |> lib.mapAttrsToList (
+              clientName: v: "${v.client_secret}:${mkClientSecretFileDest clientName}"
+            ));
 
         wantsContainer = lib.optional (cfg.sessionProvider == "redis") redisName;
         stack = name;
