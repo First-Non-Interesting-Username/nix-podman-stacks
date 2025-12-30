@@ -32,6 +32,7 @@ with types; rec {
 
   clientSecretHash = mkOption {
     type = clientSecretType;
+    example = ''$pbkdf2-sha512$310000$vV9QrLSHV.vUrX2EpUC/ig$spbmTFMnl0vWFlILOTDsGPv.kFpFnX7OxFcZBSPqp9k0RilwGtEWbgJcta8AfFgEuT7sJmEi2WBQ9t0WSEZSiA'';
     description = ''
       The client secret hash.
       For examples on how to generate a client secret, see
@@ -50,6 +51,7 @@ with types; rec {
     mkOption {
       type = nullableClientSecretType;
       default = null;
+      example = ''$pbkdf2-sha512$310000$vV9QrLSHV.vUrX2EpUC/ig$spbmTFMnl0vWFlILOTDsGPv.kFpFnX7OxFcZBSPqp9k0RilwGtEWbgJcta8AfFgEuT7sJmEi2WBQ9t0WSEZSiA'';
       description = ''
         The client secret hash.
         For examples on how to generate a client secret, see
@@ -62,7 +64,7 @@ with types; rec {
         3. As an absolute path to a file containing the client_secret, in which case the hash will be automatically computed: `{ toHash = "/run/secrets/client_secret" };`
         4. As `null`
 
-        If left unset, the client secret will be read from the file specified in the `clientSecretFile` option and hashed automatically before being passed to the Authelia container.
+        If left unset (`null`), the client secret will be read from the file specified in the `clientSecretFile` option and hashed automatically before being passed to the Authelia container.
       '';
       apply = v:
         if v == null
