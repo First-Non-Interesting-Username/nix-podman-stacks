@@ -87,6 +87,14 @@
         {
           items = [
             {
+              text = "Secrets & Templating";
+              link = "/secrets-templating";
+            }
+          ];
+        }
+        {
+          items = [
+            {
               text = "Examples";
               link = "/examples";
             }
