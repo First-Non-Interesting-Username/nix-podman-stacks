@@ -257,6 +257,7 @@ in {
           config = let
             envFromFileContentLocation = "/run/user/${toString globalConf.nps.hostUid}/${name}/extra_env/from_file_content";
             envFromTemplateLocation = "/run/user/${toString globalConf.nps.hostUid}/${name}/extra_env/from_template_string";
+            envFromCommandLocation = "/run/user/${toString globalConf.nps.hostUid}/${name}/extra_env/from_command";
             mkTemplateMountSource = fileName: "/run/user/${toString globalConf.nps.hostUid}/${name}/template_mounts/${builtins.baseNameOf fileName}";
 
             extraLiteralEnv = config.extraEnv |> lib.filterAttrs (_: v: !lib.isAttrs v);
@@ -268,6 +269,10 @@ in {
               config.extraEnv
               |> lib.filterAttrs (_: v: lib.isAttrs v && v.fromTemplate != null)
               |> lib.mapAttrs (_: v: v.fromTemplate);
+            extraCommandEnv =
+              config.extraEnv
+              |> lib.filterAttrs (_: v: lib.isAttrs v && v.fromCommand != null)
+              |> lib.mapAttrs (_: v: v.fromCommand);
           in
             lib.mkMerge [
               #globalConf.nps.defaultContainerSettings
@@ -294,7 +299,8 @@ in {
                   // lib.mapAttrs (_: v: v.destPath) config.fileEnvMount;
                 environmentFile =
                   lib.optional (extraFileContentEnv != {}) envFromFileContentLocation
-                  ++ lib.optional (extraTemplateEnv != {}) envFromTemplateLocation;
+                  ++ lib.optional (extraTemplateEnv != {}) envFromTemplateLocation
+                  ++ lib.optional (extraCommandEnv != {}) envFromCommandLocation;
 
                 volumes =
                   (config.fileEnvMount |> lib.attrValues |> lib.map (v: "${v.sourcePath}:${v.destPath}"))
@@ -328,7 +334,7 @@ in {
                         }
                       ))
                     ]
-                    ++ lib.optional (extraFileContentEnv != {} || extraTemplateEnv != {} || config.templateMount != [])
+                    ++ lib.optional (extraFileContentEnv != {} || extraTemplateEnv != {} || extraCommandEnv != {} || config.templateMount != [])
                     (
                       lib.getExe (
                         pkgs.writeShellApplication {
@@ -336,6 +342,11 @@ in {
                           runtimeInputs = [
                             pkgs.coreutils
                             pkgs.gomplate
+                          ];
+                          bashOptions = [
+                            "errexit"
+                            "nounset"
+                            "pipefail"
                           ];
                           text = let
                             literalEnvFile = pkgs.writeText "${name}-literal-env" (
@@ -395,11 +406,35 @@ in {
                                 )
                               } > ${envFromTemplateLocation}
                             ''
+                            + lib.optionalString (extraCommandEnv != {}) ''
+                              # Export all env vars so they can be used within the command
+                              load_env_file ${literalEnvFile}
+                              load_env_file ${envFromFileContentLocation}
+                              load_env_file ${envFromTemplateLocation}
+
+                              # Eval commands first to propagate errors (if any)
+                              ${extraCommandEnv
+                                |> lib.mapAttrsToList (name: command: ''
+                                  ${name}="$(${command})";
+                                '')
+                                |> lib.concatStringsSep "\n"}
+
+                              # Write command-based env variables to a new file
+                              install -D -m 600 /dev/null ${envFromCommandLocation}
+                              {
+                              ${
+                                extraCommandEnv
+                                |> lib.mapAttrsToList (name: command: ''echo "${name}=''$${name}"'')
+                                |> lib.concatStringsSep "\n"
+                              }
+                              } > ${envFromCommandLocation}
+                            ''
                             + lib.optionalString (config.templateMount != []) ''
                               # Export all env vars so gomplate can use them for the template
                               load_env_file ${literalEnvFile}
                               load_env_file ${envFromFileContentLocation}
                               load_env_file ${envFromTemplateLocation}
+                              load_env_file ${envFromCommandLocation}
 
                               ${
                                 config.templateMount
@@ -424,9 +459,9 @@ in {
   config = {
     assertions = [
       {
-        message = "When using `extraEnv` with `fromFile` or `fromTemplate`, exactly one of them must be set.";
+        message = "When using `extraEnv` with `fromFile`, `fromTemplate` or `fromCommand`, exactly one of them must be set.";
         # For every container check all extraEnv attributes that are attrs.
-        # If yes check that only one of 'fromFile' or 'fromTemplate' is set.
+        # If yes check that only one of 'fromFile', 'fromTemplate' or 'fromCommand' is set.
         assertion =
           config.services.podman.containers
           |> lib.attrValues
@@ -434,7 +469,7 @@ in {
             c:
               c.extraEnv
               |> lib.attrValues
-              |> lib.all (v: (!lib.isAttrs v) || (v.fromFile != null) != (v.fromTemplate != null))
+              |> lib.all (v: (!lib.isAttrs v) || (builtins.length (builtins.filter (x: x != null) [v.fromFile v.fromTemplate v.fromCommand]) == 1))
           );
       }
     ];

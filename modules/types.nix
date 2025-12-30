@@ -27,6 +27,16 @@ with types; rec {
             '';
             example = ''DB_URL={{ env.getEnv `DB_USERNAME` }}:{{ file.Read `/run/secrets/db_password` }}@localhost:5432/mydb'';
           };
+          fromCommand = mkOption {
+            type = nullOr str;
+            default = null;
+            description = ''
+              Command to be executed to obtain the variable value.
+
+              When used in the `extraEnv` option to set environment variables, make sure the command outputs a single line.
+            '';
+            example = "cat /run/secrets/api_key";
+          };
         };
       }
     )
