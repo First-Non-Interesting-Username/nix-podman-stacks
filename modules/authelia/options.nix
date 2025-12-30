@@ -9,11 +9,13 @@ with types; rec {
         type = nullOr path;
         default = null;
         description = "Path to file containing the client secret hash.";
+        example = lib.literalExpression ''config.sops.secrets."immich/client_secret_hash".path'';
       };
       toHash = lib.mkOption {
         type = nullOr path;
         default = null;
         description = "Path to file containing the client secret. The file content will be hashed automatically before being passed to Authelia.";
+        example = lib.literalExpression ''config.sops.secrets."immich/client_secret".path'';
       };
     };
   });
@@ -32,7 +34,16 @@ with types; rec {
 
   clientSecretHash = mkOption {
     type = clientSecretType;
-    example = ''$pbkdf2-sha512$310000$vV9QrLSHV.vUrX2EpUC/ig$spbmTFMnl0vWFlILOTDsGPv.kFpFnX7OxFcZBSPqp9k0RilwGtEWbgJcta8AfFgEuT7sJmEi2WBQ9t0WSEZSiA'';
+    example = lib.literalExpression ''
+      # Literal String:
+      "$pbkdf2-sha512$310000$cbOAIWbfz3vCVXIPIp6d2A$J0klwULa6TvPRCU1HAfuKua/dMKTl8gbTYJz2N73ejGUu0LUGz/y3kwmJLuKuAYGg3WQOT0q9ZzVHHUvpKpgvQ"
+
+      # Client secret hash stored in a file
+      { fromFile = config.sops.secrets."immich/client_secret_hash".path; }
+
+      # Client secret stored in a file: Hash will be computed dynamically
+      { toHash = config.sops.secrets."immich/client_secret".path; }
+    '';
     description = ''
       The client secret hash.
       For examples on how to generate a client secret, see
@@ -41,9 +52,9 @@ with types; rec {
 
       The value can be passed in multiple ways:
 
-      1. As a literal string, e.g. `$pbkdf2-sha512$...`
-      2. As an absolute path to a file containing the hash, e.g. `{ fromFile = "/run/secrets/client_secret_hash" };`
-      3. As an absolute oath to a file containing the client_secret, in which case the hash will be automatically computed: `{ toHash = "/run/secrets/client_secret" };`
+      1. As a literal string
+      2. As an absolute path to a file containing the hash (`toFile`)
+      3. As an absolute oath to a file containing the client_secret, in which case the hash will be automatically computed (`toHash`)
     '';
   };
 
@@ -51,7 +62,20 @@ with types; rec {
     mkOption {
       type = nullableClientSecretType;
       default = null;
-      example = ''$pbkdf2-sha512$310000$vV9QrLSHV.vUrX2EpUC/ig$spbmTFMnl0vWFlILOTDsGPv.kFpFnX7OxFcZBSPqp9k0RilwGtEWbgJcta8AfFgEuT7sJmEi2WBQ9t0WSEZSiA'';
+      example = lib.literalExpression ''
+        # Literal String:
+        "$pbkdf2-sha512$310000$cbOAIWbfz3vCVXIPIp6d2A$J0klwULa6TvPRCU1HAfuKua/dMKTl8gbTYJz2N73ejGUu0LUGz/y3kwmJLuKuAYGg3WQOT0q9ZzVHHUvpKpgvQ"
+
+        # Client secret hash stored in a file
+        { fromFile = config.sops.secrets."immich/client_secret_hash".path; }
+
+        # Client secret stored in a file: Hash will be computed dynamically
+        { toHash = config.sops.secrets."immich/client_secret".path; }
+
+        # Null (default): Hash will be computed automatically based on the clientSecretFile option
+        # Equivalent to { toHash = cfg.oidc.clientSecretFile; }
+        null
+      '';
       description = ''
         The client secret hash.
         For examples on how to generate a client secret, see
@@ -59,9 +83,9 @@ with types; rec {
 
         The value can be passed in multiple ways:
 
-        1. As a literal string, e.g. `$pbkdf2-sha512$...`
-        2. As an absolute path to a file containing the hash, e.g. `{ fromFile = "/run/secrets/client_secret_hash" };`
-        3. As an absolute path to a file containing the client_secret, in which case the hash will be automatically computed: `{ toHash = "/run/secrets/client_secret" };`
+        1. As a literal string
+        2. As an absolute path to a file containing the hash (`toFile`)
+        3. As an absolute oath to a file containing the client_secret, in which case the hash will be automatically computed (`toHash`)
         4. As `null`
 
         If left unset (`null`), the client secret will be read from the file specified in the `clientSecretFile` option and hashed automatically before being passed to the Authelia container.

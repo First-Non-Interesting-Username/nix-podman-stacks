@@ -130,7 +130,26 @@ in {
                   type = (import ./options.nix lib).nullableClientSecretType;
                   default = null;
                   description = ''
-                    The client secret.
+                    The client secret hash.
+                    For examples on how to generate a client secret, see
+
+                    <https://www.authelia.com/integration/openid-connect/frequently-asked-questions/#client-secret>
+
+                    The value can be passed in multiple ways:
+
+                    1. As a literal string
+                    2. As an absolute path to a file containing the hash (`toFile`)
+                    3. As an absolute oath to a file containing the client_secret, in which case the hash will be automatically computed (`toHash`)
+                  '';
+                  example = lib.literalExpression ''
+                    # Literal String:
+                    "$pbkdf2-sha512$310000$cbOAIWbfz3vCVXIPIp6d2A$J0klwULa6TvPRCU1HAfuKua/dMKTl8gbTYJz2N73ejGUu0LUGz/y3kwmJLuKuAYGg3WQOT0q9ZzVHHUvpKpgvQ"
+
+                    # Client secret hash stored in a file
+                    { fromFile = config.sops.secrets."immich/client_secret_hash".path; }
+
+                    # Client secret stored in a file: Hash will be computed dynamically
+                    { toHash = config.sops.secrets."immich/client_secret".path; }
                   '';
                 };
               };
