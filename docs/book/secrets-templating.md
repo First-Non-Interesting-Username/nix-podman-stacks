@@ -27,9 +27,9 @@ The decrypted file can be passed during runtime using the [environmentFile](http
 
 ```nix
 {config, ...}: {
-    nps.stacks.vaultwarden = {
-        containers.vaultwarden.environmentFile = config.sops.secrets."vaultwarden/env_file".path;
-    };
+  nps.stacks.vaultwarden = {
+      containers.vaultwarden.environmentFile = [ config.sops.secrets."vaultwarden/env_file".path ];
+  };
 }
 ```
 
@@ -83,7 +83,7 @@ This can be achieved by combining the standard options `environment` & `volumes`
 }
 ```
 
-To simplify this, there is a wrapper option `fileEnvMount` available, that can simplify this:
+To simplify this, there is a wrapper option `fileEnvMount` available:
 
 ```nix
 {config, ...}: {
@@ -120,10 +120,10 @@ in {
 }
 ```
 
-Passing the submodule option `fromTemplate` will cause the string to be templated by [gomplate](https://github.com/hairyhenderson/gomplate).
-Similar to the `fromFile` option, the `ExecStartPre` hook will be used to dynamically construct a new environment file with the templated values. Make sure that the output of the template is only a single line. Multi line outputs might result in invalid environment files.
+Setting the option `fromTemplate` will cause the string to be templated by [gomplate](https://github.com/hairyhenderson/gomplate).
+Similar to the `fromFile` option, the `ExecStartPre` hook will be used to dynamically construct a new environment file with the templated values. Make sure that the output of the template is only a single line. Multi-line outputs might result in invalid environment files.
 
-## Volume Files
+## Volumes
 
 Files that are mounted as volumes can also be templated first before they are being mounted.
 This can for example be used to hydrate a file with secrets before it's being mounted into the container.
@@ -156,4 +156,4 @@ For this purpose, nix-podman-stacks adds a `templateMount` container option, tha
 }
 ```
 
-Similar to previous example, the template will be rendered by [gomplate](https://github.com/hairyhenderson/gomplate) again before being mounted to the `destPath` inside the container.
+Similar to previous example, the template will be rendered by [gomplate](https://github.com/hairyhenderson/gomplate) before being mounted to the `destPath` inside the container.
