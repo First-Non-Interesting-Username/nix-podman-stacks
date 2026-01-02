@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}:{
-  aiostreams = {
+  nps.stacks.aiostreams = {
     enable = true;
     secretKeyFile = config.sops.secrets."aiostreams/secret_key".path;
     extraEnv = {

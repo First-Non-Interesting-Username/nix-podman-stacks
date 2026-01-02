@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  beszel = {
+  nps.stacks.beszel = {
     enable = true;
     ed25519PrivateKeyFile = config.sops.secrets."beszel/ssh_key".path;
     ed25519PublicKeyFile = config.sops.secrets."beszel/ssh_pub_key".path;

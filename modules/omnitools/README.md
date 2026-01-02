@@ -2,6 +2,6 @@
 
 ```nix
 {
-  omnitools.enable = true;
+  nps.stacks.omnitools.enable = true;
 }
 ```

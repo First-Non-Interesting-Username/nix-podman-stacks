@@ -2,6 +2,6 @@
 
 ```nix
 {
-  yopass.enable = true;
+  nps.stacks.yopass.enable = true;
 }
 ```

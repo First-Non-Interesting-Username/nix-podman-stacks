@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  healthchecks = {
+  nps.stacks.healthchecks = {
     enable = true;
     secretKeyFile = config.sops.secrets."healthchecks/secret_key".path;
     superUserEmail = "admin@example.com";

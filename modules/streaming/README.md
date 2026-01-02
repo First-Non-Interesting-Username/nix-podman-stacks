@@ -2,7 +2,7 @@
 
 ```nix
 {
-  streaming = {
+  nps.stacks.streaming = {
     enable = true;
 
     gluetun = {

@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  authelia = {
+  nps.stacks.authelia = {
     enable = true;
     jwtSecretFile = config.sops.secrets."authelia/jwt_secret".path;
     sessionSecretFile = config.sops.secrets."authelia/session_secret".path;

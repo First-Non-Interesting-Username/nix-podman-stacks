@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  sshwifty = {
+  nps.stacks.sshwifty = {
     enable = true;
 
     settings = {

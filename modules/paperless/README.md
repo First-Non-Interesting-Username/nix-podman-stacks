@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  paperless = {
+  nps.stacks.paperless = {
     enable = true;
 
     adminProvisioning = {

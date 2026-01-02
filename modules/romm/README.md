@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  romm = {
+  nps.stacks.romm = {
     enable = true;
 
     authSecretKeyFile = config.sops.secrets."romm/auth_secret_key".path;

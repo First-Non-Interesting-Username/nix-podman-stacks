@@ -2,6 +2,6 @@
 
 ```nix
 {
-  homeassistant.enable = true;
+  nps.stacks.homeassistant.enable = true;
 }
 ```

@@ -2,7 +2,7 @@
 
 ```nix
 {config, lib, ...}: {
-  immich = {
+  nps.stacks.immich = {
     enable = true;
 
     oidc = {

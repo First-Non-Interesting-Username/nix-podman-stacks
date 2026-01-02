@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  pocketid = {
+  nps.stacks.pocketid = {
     enable = true;
 
     # Sync users from LLDAP

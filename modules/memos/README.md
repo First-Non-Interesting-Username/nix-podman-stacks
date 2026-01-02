@@ -2,7 +2,7 @@
 
 ```nix
 {
-  memos = {
+  nps.stacks.memos = {
     enable = true;
 
     oidc = {

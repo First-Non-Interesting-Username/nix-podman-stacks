@@ -2,7 +2,7 @@
 
 ```nix
 {
-  webtop = {
+  nps.stacks.webtop = {
     enable = true;
 
     containers.webtop = {

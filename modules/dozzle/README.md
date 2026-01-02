@@ -2,6 +2,6 @@
 
 ```nix
 {
-  dozzle.enable = true;
+  nps.stacks.dozzle.enable = true;
 }
 ```

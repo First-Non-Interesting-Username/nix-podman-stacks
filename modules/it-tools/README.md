@@ -2,6 +2,6 @@
 
 ```nix
 {
-  it-tools.enable = true;
+  nps.stacks.it-tools.enable = true;
 }
 ```

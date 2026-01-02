@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  wg-portal = {
+  nps.stacks.wg-portal = {
     enable = true;
 
     port = 51825;

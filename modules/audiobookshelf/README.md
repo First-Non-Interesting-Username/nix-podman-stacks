@@ -2,7 +2,7 @@
 
 ```nix
 {
-  audiobookshelf = {
+  nps.stacks.audiobookshelf = {
     enable = true;
     oidc = {
       registerClient = true;

@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  hortusfox = {
+  nps.stacks.hortusfox = {
     enable = true;
     db = {
       userPasswordFile = config.sops.secrets."hortusfox/db_user_password".path;

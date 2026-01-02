@@ -2,7 +2,7 @@
 
 ```nix
 {
-  homepage = {
+  nps.stacks.homepage = {
     enable = true;
 
     containers.homepage.volumes = [

@@ -2,6 +2,6 @@
 
 ```nix
 {
-  stirling-pdf.enable = true;
+  nps.stacks.stirling-pdf.enable = true;
 }
 ```

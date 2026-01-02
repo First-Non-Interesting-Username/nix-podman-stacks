@@ -2,6 +2,6 @@
 
 ```nix
 {
-  changedetection.enable = true;
+  nps.stacks.changedetection.enable = true;
 }
 ```

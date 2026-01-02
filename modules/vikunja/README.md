@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  vikunja = {
+  nps.stacks.vikunja = {
     enable = true;
 
     jwtSecretFile = config.sops.secrets."vikunja/jwt_secret".path;

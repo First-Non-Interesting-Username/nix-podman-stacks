@@ -2,6 +2,6 @@
 
 ```nix
 {
-  forgejo.enable = true;
+  nps.stacks.forgejo.enable = true;
 }
 ```

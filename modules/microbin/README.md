@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  microbin = {
+  nps.stacks.microbin = {
     enable = true;
 
     extraEnv = {

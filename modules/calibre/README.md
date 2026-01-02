@@ -2,6 +2,6 @@
 
 ```nix
 {
-  calibre.enable = true;
+  nps.stacks.calibre.enable = true;
 }
 ```

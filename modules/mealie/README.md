@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  mealie = {
+  nps.stacks.mealie = {
     enable = true;
     oidc = {
       enable = true;

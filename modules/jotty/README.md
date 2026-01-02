@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  jotty = {
+  nps.stacks.jotty = {
     enable = true;
     oidc = {
       enable = true;

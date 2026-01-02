@@ -4,7 +4,7 @@
 
 ```nix
 {config, ...}: {
-  traefik = {
+  nps.stacks.traefik = {
     enable = true;
 
     domain = "example.com";
@@ -20,7 +20,7 @@
 
 ```nix
 {config, ...}: {
-  traefik = {
+  nps.stacks.traefik = {
     enable = true;
 
     domain = "example.com";
@@ -37,7 +37,7 @@
 
 ```nix
 {config, ...}: {
-  traefik = {
+  nps.stacks.traefik = {
     enable = true;
 
     domain = "example.com";

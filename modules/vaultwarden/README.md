@@ -2,7 +2,7 @@
 
 ```nix
 {
-  vaultwarden = {
+  nps.stacks.vaultwarden = {
     enable = true;
     oidc = {
       enable = true;

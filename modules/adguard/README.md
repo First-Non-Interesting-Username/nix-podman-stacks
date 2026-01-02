@@ -2,6 +2,6 @@
 
 ```nix
 {
-    nps.stacks.adguard.enable = true;
+  nps.stacks.adguard.enable = true;
 }
 ```

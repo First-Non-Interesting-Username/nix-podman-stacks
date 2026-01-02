@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  kimai = {
+  nps.stacks.kimai = {
     enable = true;
 
     adminEmail = "admin@example.com";

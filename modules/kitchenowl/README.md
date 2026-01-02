@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  kitchenowl = {
+  nps.stacks.kitchenowl = {
     enable = true;
 
     jwtSecretFile = config.sops.secrets."kitchenowl/jwt_secret".path;

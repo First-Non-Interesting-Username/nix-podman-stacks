@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  gatus = {
+  nps.stacks.gatus = {
     enable = true;
 
     db = {

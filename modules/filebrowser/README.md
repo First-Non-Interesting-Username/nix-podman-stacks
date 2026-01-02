@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  filebrowser = {
+  nps.stacks.filebrowser = {
     enable = true;
     mounts = {
       ${config.home.homeDirectory} = "/home";

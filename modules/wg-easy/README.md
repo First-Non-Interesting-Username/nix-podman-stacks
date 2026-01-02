@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  wg-easy = {
+  nps.stacks.wg-easy = {
     enable = true;
 
     adminPasswordFile = config.sops.secrets."wg-easy/admin_password".path;

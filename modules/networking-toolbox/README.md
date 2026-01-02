@@ -2,6 +2,6 @@
 
 ```nix
 {
-  networking-toolbox.enable = true;
+  nps.stacks.networking-toolbox.enable = true;
 }
 ```

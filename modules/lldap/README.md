@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  lldap = {
+  nps.stacks.lldap = {
     enable = true;
 
     baseDn = "DC=example,DC=com";

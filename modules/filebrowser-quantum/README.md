@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  filebrowser-quantum = {
+  nps.stacks.filebrowser-quantum = {
     enable = true;
     mounts = {
       ${config.home.homeDirectory} = {

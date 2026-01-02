@@ -2,6 +2,6 @@
 
 ```nix
 {
-  mazanoke.enable = true;
+  nps.stacks.mazanoke.enable = true;
 }
 ```

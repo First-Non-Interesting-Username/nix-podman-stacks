@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  outline = {
+  nps.stacks.outline = {
     enable = true;
 
     secretKeyFile = config.sops.secrets."outline/secret_key".path;

@@ -1,8 +1,8 @@
 ## Example
 
 ```nix
-{
-  crowdsec = {
+{config, ...}: {
+  nps.stacks.crowdsec = {
     enable = true;
     enableGrafanaDashboard = true;
     enablePrometheusExport = true;

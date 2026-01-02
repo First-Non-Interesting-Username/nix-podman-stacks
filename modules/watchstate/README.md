@@ -2,6 +2,6 @@
 
 ```nix
 {config, ...}: {
-  watchstate.enable = true;
+  nps.stacks.watchstate.enable = true;
 }
 ```

@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  pangolin-newt = {
+  nps.stacks.pangolin-newt = {
     enable = true;
 
     enableGrafanaDashboard = true;

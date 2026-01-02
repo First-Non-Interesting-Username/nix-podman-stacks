@@ -5,6 +5,6 @@ Example include [Homepage](/stacks/homepage), [Traefik](/stacks/traefik) and [Do
 
 ```nix
 {
-  docker-socket-proxy.enable = true;
+  nps.stacks.docker-socket-proxy.enable = true;
 }
 ```

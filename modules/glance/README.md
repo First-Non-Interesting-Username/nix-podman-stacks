@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  glance = {
+  nps.stacks.glance = {
     enable = true;
     settings.pages.home = {
       columns.start = {

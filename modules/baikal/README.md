@@ -2,6 +2,6 @@
 
 ```nix
 {
-  baikal.enable = true;
+  nps.stacks.baikal.enable = true;
 }
 ```

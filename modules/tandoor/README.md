@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  tandoor = {
+  nps.stacks.tandoor = {
     enable = true;
 
     secretKeyFile = config.sops.secrets."tandoor/secret_key".path;

@@ -2,6 +2,6 @@
 
 ```nix
 {
-  uptime-kuma.enable = true;
+  nps.stacks.uptime-kuma.enable = true;
 }
 ```

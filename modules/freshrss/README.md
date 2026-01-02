@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  freshrss = {
+  nps.stacks.freshrss = {
     enable = true;
     oidc = {
       enable = true;

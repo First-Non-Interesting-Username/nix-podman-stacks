@@ -1,8 +1,8 @@
 ## Example
 
 ```nix
-{
-  davis = {
+{config, ...}: {
+  nps.stacks.davis = {
     enable = true;
 
     adminPasswordFile = config.sops.secrets."davis/admin_password".path;

@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  timetracker = {
+  nps.stacks.timetracker = {
     enable = true;
 
     secretKeyFile = config.sops.secrets."timetracker/secret_key".path;

@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  komga = {
+  nps.stacks.komga = {
     enable = true;
 
     oidc = {

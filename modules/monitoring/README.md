@@ -4,7 +4,7 @@
 
 ```nix
 {
-  monitoring.enable = true;
+  nps.stacks.monitoring.enable = true;
 }
 ```
 
@@ -12,7 +12,7 @@
 
 ```nix
 {config, ...}: {
-  monitoring = {
+  nps.stacks.monitoring = {
     enable = true;
 
     grafana = {
@@ -30,7 +30,7 @@
 
 ```nix
 {config, ...}: {
-  monitoring = {
+  nps.stacks.monitoring = {
     monitoring.enable = true;
 
     prometheus.rules.groups = let
@@ -72,7 +72,7 @@
       enable = true;
       ntfy = {
         enable = true;
-        tokenFile = config.sops.secrets."users/monitoring/ntfy_access_token".path;
+        tokenFile = config.sops.secrets."ntfy/monitoring/ntfy_access_token".path;
         settings.ntfy.notification.topic = "monitoring";
       };
     };

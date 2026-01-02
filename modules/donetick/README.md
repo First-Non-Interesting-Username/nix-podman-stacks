@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  donetick = {
+  nps.stacks.donetick = {
     enable = true;
 
     # Disable user registration, so only OIDC login is possible

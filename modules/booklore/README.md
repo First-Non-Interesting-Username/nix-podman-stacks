@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  booklore = {
+  nps.stacks.booklore = {
     enable = true;
     oidc.registerClient = true;
     db = {

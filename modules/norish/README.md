@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  norish = {
+  nps.stacks.norish = {
     enable = true;
 
     masterKeyFile = config.sops.secrets."norish/master_key".path;

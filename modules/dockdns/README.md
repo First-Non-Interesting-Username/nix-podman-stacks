@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  dockdns = {
+  nps.stacks.dockdns = {
     enable = true;
 
     # Cloudflare API-Token for domain "example.com"

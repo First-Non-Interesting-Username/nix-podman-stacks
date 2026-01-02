@@ -2,7 +2,7 @@
 
 ```nix
 {
-  storyteller = {
+  nps.stacks.storyteller = {
     enable = true;
 
     secretKeyFile = config.sops.secrets."storyteller/secret_key".path;

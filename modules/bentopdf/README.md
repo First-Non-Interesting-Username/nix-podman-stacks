@@ -2,6 +2,6 @@
 
 ```nix
 {
-  bentopdf.enable = true;
+  nps.stacks.bentopdf.enable = true;
 }
 ```

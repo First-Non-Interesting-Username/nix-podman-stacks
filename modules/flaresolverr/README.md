@@ -2,6 +2,6 @@
 
 ```nix
 {
-  flaresolverr.enable = true;
+  nps.stacks.flaresolverr.enable = true;
 }
 ```

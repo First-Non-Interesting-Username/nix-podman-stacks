@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  karakeep = {
+  nps.stacks.karakeep = {
     enable = true;
 
     oidc = {
