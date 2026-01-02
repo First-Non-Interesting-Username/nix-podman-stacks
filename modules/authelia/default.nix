@@ -235,6 +235,17 @@ in {
         assertion = config.nps.stacks.lldap.enable;
         message = "Authelia requires the `lldap` stack to be enabled";
       }
+
+      {
+        message = "When setting a client secret (hash) with `fromFile` or `toHash`, exactly one of them must be set.";
+        assertion =
+          cfg.oidc.clients
+          |> lib.attrValues
+          |> map (c: c.client_secret)
+          |> lib.all (
+            s: (!lib.isAttrs s) || (s.fromFile == null) != (s.toHash == null)
+          );
+      }
     ];
 
     nps.stacks.crowdsec = lib.mkIf cfg.crowdsec.enableLogCollection {
