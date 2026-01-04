@@ -52,6 +52,11 @@ in {
       };
       clientSecretFile = (import ../authelia/options.nix lib).clientSecretFile;
       clientSecretHash = (import ../authelia/options.nix lib).derivableClientSecretHash cfg.oidc.clientSecretFile;
+      adminGroup = lib.mkOption {
+        type = lib.types.str;
+        default = "${name}_admin";
+        description = "Users of this group will be assigned admin rights";
+      };
       userGroup = lib.mkOption {
         type = lib.types.str;
         default = "${name}_user";
@@ -63,6 +68,7 @@ in {
   config = lib.mkIf cfg.enable {
     nps.stacks.lldap.bootstrap.groups = lib.mkIf cfg.oidc.enable {
       ${cfg.oidc.userGroup} = {};
+      ${cfg.oidc.adminGroup} = {};
     };
 
     nps.stacks.authelia = lib.mkIf cfg.oidc.enable {
@@ -86,7 +92,10 @@ in {
         rules = [
           {
             policy = config.nps.stacks.authelia.defaultAllowPolicy;
-            subject = "group:${cfg.oidc.userGroup}";
+            subject = [
+              "group:${cfg.oidc.adminGroup}"
+              "group:${cfg.oidc.userGroup}"
+            ];
           }
         ];
       };
@@ -113,6 +122,11 @@ in {
             OIDC_ISSUER = config.nps.containers.authelia.traefik.serviceUrl;
             OIDC_CLIENT_ID = name;
             OIDC_CLIENT_SECRET.fromFile = cfg.oidc.clientSecretFile;
+
+            OIDC_CLAIM_MAPPING_ENABLED = true;
+            OIDC_SCOPES = "groups";
+            OIDC_GROUPS_CLAIM = "groups";
+            OIDC_ADMIN_GROUP = cfg.oidc.adminGroup;
           };
 
         dependsOnContainer = [dbName redisName];
