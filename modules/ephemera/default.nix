@@ -77,6 +77,8 @@ in {
           PUID = config.nps.defaultUid;
           PGID = config.nps.defaultGid;
           BASE_URL = cfg.containers.${name}.traefik.serviceUrl;
+          AA_BASE_URL = lib.mkDefault "https://annas-archive.org";
+          LG_BASE_URL = lib.mkDefault "https://libgen.bz";
         }
         // lib.optionalAttrs cfg.flaresolverr.enable {
           FLARESOLVERR_URL = "http://${config.nps.containers.flaresolverr.traefik.serviceAddressInternal}";
