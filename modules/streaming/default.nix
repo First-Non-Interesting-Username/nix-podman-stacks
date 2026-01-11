@@ -528,7 +528,7 @@ in {
           name = seerrDisplayName;
           settings = {
             description = seerrDescription;
-            icon = "jellyseerr";
+            icon = "overseerr";
           };
         };
         glance = {
@@ -536,7 +536,7 @@ in {
           description = seerrDescription;
           name = seerrDisplayName;
           id = seerrName;
-          icon = "di:jellyseerr";
+          icon = "di:overseerr";
         };
       };
 

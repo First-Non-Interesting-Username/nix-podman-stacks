@@ -146,7 +146,7 @@ There is also an [Option Search](https://tarow.github.io/nix-podman-stacks/searc
   - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/prowlarr.svg" style="width:1em;height:1em;" /> Prowlarr
   - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/qbittorrent.svg" style="width:1em;height:1em;" /> qBittorrent
   - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/qui.svg" style="width:1em;height:1em;" /> qui
-  - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/qui.svg" style="width:1em;height:1em;" /> seerr
+  - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/overseerr.svg" style="width:1em;height:1em;" /> Seerr
   - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/radarr.svg" style="width:1em;height:1em;" /> Radarr
   - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/sonarr.svg" style="width:1em;height:1em;" /> Sonarr
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/tandoor-recipes.svg" style="width:1em;height:1em;" /> [Tandoor](https://tarow.github.io/nix-podman-stacks/docs/stacks/tandoor.html)
