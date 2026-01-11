@@ -15,6 +15,7 @@
   radarrName = "radarr";
   bazarrName = "bazarr";
   prowlarrName = "prowlarr";
+  quiName = "qui";
   seerrName = "Seerr";
 
   category = "Media & Downloads";
@@ -30,7 +31,8 @@
   bazarrDisplayName = "Bazarr";
   prolarrDescription = "Indexer Management";
   prowlarrDisplayName = "Prowlarr";
-
+  quiDisplayName = "qui";
+  quiDescription = "qBittorrent UI";
   seerrDescription = "Media Requests";
   seerrDisplayName = "Seerr";
 
@@ -57,6 +59,8 @@ in {
     radarrName
     bazarrName
     prowlarrName
+    quiName
+    seerrName
   ];
 
   options.nps.stacks.${stackName} =
@@ -167,6 +171,45 @@ in {
         };
       };
       seerr.enable = lib.mkEnableOption "Seerr";
+      qui = {
+        enable = lib.mkEnableOption "qui";
+        adminUsername = lib.mkOption {
+          type = lib.types.str;
+          default = "admin";
+          description = ''
+            Admin username to access the dashboard.
+          '';
+        };
+        adminPasswordFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = ''
+            Path to the file containing the admin password.
+            If set, an admin user will be created automatically.
+          '';
+        };
+        oidc = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = ''
+              Whether to enable OIDC login with Authelia. This will register an OIDC client in Authelia
+              and setup the necessary configuration.
+
+              For details, see:
+
+              - <https://getqui.com/docs/configuration/oidc>
+            '';
+          };
+          clientSecretFile = (import ../authelia/options.nix lib).clientSecretFile;
+          clientSecretHash = (import ../authelia/options.nix lib).derivableClientSecretHash cfg.qui.oidc.clientSecretFile;
+          userGroup = lib.mkOption {
+            type = lib.types.str;
+            default = "${quiName}_user";
+            description = "Users of this group will be able to log in";
+          };
+        };
+      };
       flaresolverr.enable =
         lib.mkEnableOption "Flaresolverr"
         // {
@@ -208,25 +251,58 @@ in {
       network = [stackName];
     };
 
-    nps.stacks.lldap.bootstrap.groups = lib.mkIf (cfg.jellyfin.enable && cfg.jellyfin.oidc.enable) {
-      ${cfg.jellyfin.oidc.adminGroup} = {};
-      ${cfg.jellyfin.oidc.userGroup} = {};
-    };
-    nps.stacks.authelia = lib.mkIf (cfg.jellyfin.enable && cfg.jellyfin.oidc.enable) {
-      oidc.clients.${jellyfinName} = {
-        client_name = "Jellyfin";
-        client_secret = cfg.jellyfin.oidc.clientSecretHash;
-        public = false;
-        authorization_policy = config.nps.stacks.authelia.defaultAllowPolicy;
-        require_pkce = true;
-        pkce_challenge_method = "S256";
-        pre_configured_consent_duration = config.nps.stacks.authelia.oidc.defaultConsentDuration;
-        token_endpoint_auth_method = "client_secret_post";
-        redirect_uris = [
-          "${cfg.containers.${jellyfinName}.traefik.serviceUrl}/sso/OID/redirect/authelia"
-        ];
-      };
-    };
+    nps.stacks.lldap.bootstrap.groups = lib.mkMerge [
+      (lib.mkIf (cfg.jellyfin.enable && cfg.jellyfin.oidc.enable) {
+        ${cfg.jellyfin.oidc.adminGroup} = {};
+        ${cfg.jellyfin.oidc.userGroup} = {};
+      })
+      (lib.mkIf (cfg.qui.enable && cfg.qui.oidc.enable) {
+        ${cfg.qui.oidc.userGroup} = {};
+      })
+    ];
+    nps.stacks.authelia = lib.mkMerge [
+      (lib.mkIf (cfg.jellyfin.enable && cfg.jellyfin.oidc.enable) {
+        oidc.clients.${jellyfinName} = {
+          client_name = "Jellyfin";
+          client_secret = cfg.jellyfin.oidc.clientSecretHash;
+          public = false;
+          authorization_policy = config.nps.stacks.authelia.defaultAllowPolicy;
+          require_pkce = true;
+          pkce_challenge_method = "S256";
+          pre_configured_consent_duration = config.nps.stacks.authelia.oidc.defaultConsentDuration;
+          token_endpoint_auth_method = "client_secret_post";
+          redirect_uris = [
+            "${cfg.containers.${jellyfinName}.traefik.serviceUrl}/sso/OID/redirect/authelia"
+          ];
+        };
+      })
+      (lib.mkIf (cfg.qui.enable && cfg.qui.oidc.enable) {
+        oidc.clients.${quiName} = {
+          client_name = quiDisplayName;
+          client_secret = cfg.qui.oidc.clientSecretHash;
+          public = false;
+          authorization_policy = quiName;
+          require_pkce = false;
+          pkce_challenge_method = "";
+          pre_configured_consent_duration = config.nps.stacks.authelia.oidc.defaultConsentDuration;
+          token_endpoint_auth_method = "client_secret_post";
+          redirect_uris = [
+            "${cfg.containers.${quiName}.traefik.serviceUrl}/api/auth/oidc/callback"
+          ];
+        };
+        # No real RBAC control based on custom claims / groups yet. Restrict user-access on Authelia level
+        # See <https://github.com/autobrr/qui/discussions/1032>
+        settings.identity_providers.oidc.authorization_policies.${quiName} = {
+          default_policy = "deny";
+          rules = [
+            {
+              policy = config.nps.stacks.authelia.defaultAllowPolicy;
+              subject = "group:${cfg.qui.oidc.userGroup}";
+            }
+          ];
+        };
+      })
+    ];
 
     nps.stacks.streaming.gluetun.settings = import ./gluetun_config.nix;
 
@@ -318,6 +394,50 @@ in {
           name = qbittorrentDisplayName;
           id = qbittorrentName;
           icon = "di:qbittorrent";
+        };
+      };
+
+      ${quiName} = lib.mkIf cfg.qui.enable {
+        image = "ghcr.io/autobrr/qui:v1.12.0";
+        volumes =
+          [
+            "${storage}/${quiName}:/config"
+            "${mediaStorage}:/media"
+          ]
+          ++ lib.optional (cfg.qui.adminPasswordFile != null) "${cfg.qui.adminPasswordFile}:/run/secrets/admin_password";
+
+        extraEnv = lib.optionalAttrs cfg.qui.oidc.enable {
+          QUI__OIDC_ENABLED = true;
+          QUI__OIDC_ISSUER = config.nps.containers.authelia.traefik.serviceUrl;
+          QUI__OIDC_CLIENT_ID = quiName;
+          QUI__OIDC_CLIENT_SECRET.fromFile = cfg.qui.oidc.clientSecretFile;
+          QUI__OIDC_REDIRECT_URL = "${cfg.containers.${quiName}.traefik.serviceUrl}/api/auth/oidc/callback";
+          QUI__OIDC_DISABLE_BUILT_IN_LOGIN = true;
+        };
+
+        extraConfig.Service.ExecStartPost =
+          lib.optional (cfg.qui.adminPasswordFile != null)
+          "${lib.getExe config.nps.package} exec ${quiName} /bin/sh -c 'qui create-user --username ${cfg.qui.adminUsername} < /run/secrets/admin_password'";
+
+        wantsContainer = lib.optional cfg.qbittorrent.enable qbittorrentName;
+
+        stack = stackName;
+        port = 7476;
+        traefik.name = quiName;
+        homepage = {
+          inherit category;
+          name = quiDisplayName;
+          settings = {
+            description = quiDescription;
+            icon = "qui";
+          };
+        };
+        glance = {
+          inherit category;
+          description = quiDescription;
+          name = quiDisplayName;
+          id = quiName;
+          icon = "di:qui";
         };
       };
 

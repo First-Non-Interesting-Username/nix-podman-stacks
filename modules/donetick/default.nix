@@ -42,7 +42,6 @@ in {
 
           For details, see:
 
-          - <https://www.authelia.com/integration/openid-connect/clients/donetick/>
           - <https://docs.donetick.com/advance-settings/openid-connect-setup/>
         '';
       };

@@ -688,6 +688,14 @@ in {
               clientSecretHash = dummyHash;
             };
           };
+          qui = {
+            enable = true;
+            oidc = {
+              enable = true;
+              clientSecretFile = dummySecretFile;
+              clientSecretHash = dummyHash;
+            };
+          };
           seerr.enable = true;
         }
         // lib.genAttrs ["sonarr" "radarr" "bazarr" "prowlarr"] (name: {
