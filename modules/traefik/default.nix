@@ -155,7 +155,7 @@ in {
           type = lib.types.path;
           description = ''
             Path to the file containing the key for the Traefik bouncer.
-            If this is set, a Bouncer will be setup in CrowdSec. Also a new `crowdsec` middleware will be registered in Traefik and added to the `public` chain.
+            If the middleware option is enabled, a Bouncer will be setup in CrowdSec. Also a new `crowdsec` middleware will be registered in Traefik and added to the `public` chain.
             This will block requests to exposed services that are detected as malicious by Crowdsec.
           '';
         };
