@@ -155,8 +155,10 @@ in {
           type = lib.types.path;
           description = ''
             Path to the file containing the key for the Traefik bouncer.
-            If the middleware option is enabled, a Bouncer will be setup in CrowdSec. Also a new `crowdsec` middleware will be registered in Traefik and added to the `public` chain.
+            If the middleware option is enabled, a Bouncer will be automatically provisioned in CrowdSec. Also a new `crowdsec` middleware will be registered in Traefik and added to the `public` chain.
             This will block requests to exposed services that are detected as malicious by Crowdsec.
+
+            You can generate a bouncer key using openssl: `openssl rand -hex 32`
           '';
         };
       };
