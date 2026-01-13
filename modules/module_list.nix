@@ -56,6 +56,7 @@ let
     paperless = ./paperless;
     pocketid = ./pocket-id;
     romm = ./romm;
+    shelfmark = ./shelfmark;
     sshwifty = ./sshwifty;
     stirling-pdf = ./stirling-pdf;
     storyteller = ./storyteller;
