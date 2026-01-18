@@ -54,6 +54,7 @@ let
     outline = ./outline;
     pangolin-newt = ./pangolin-newt;
     paperless = ./paperless;
+    papra = ./papra;
     pocketid = ./pocket-id;
     romm = ./romm;
     shelfmark = ./shelfmark;
