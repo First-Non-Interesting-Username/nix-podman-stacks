@@ -28,7 +28,7 @@ in {
     HTTP_PORT = 3000;
     ROOT_URL = cfg.containers.forgejo.traefik.serviceUrl;
     DISABLE_SSH = false;
-    SSH_PORT = 222;
+    SSH_PORT = 2222;
     SSH_LISTEN_PORT = 22;
     LFS_START_SERVER = true;
     OFFLINE_MODE = true;

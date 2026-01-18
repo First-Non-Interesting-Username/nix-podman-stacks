@@ -159,6 +159,7 @@ in {
         volumes = [
           "${storage}/data:/data"
         ];
+        ports = ["2222:22"];
 
         extraConfig.Container = {
           Notify = "healthy";
@@ -199,8 +200,6 @@ in {
             group = "1000";
           };
         };
-
-        ports = ["222:22"];
 
         stack = name;
         port = 3000;
