@@ -232,7 +232,7 @@ in {
         };
         oidc = {
           enable = true;
-          clientSecretFile = dummyHash;
+          clientSecretFile = dummySecretFile;
         };
         db = {
           type = "postgres";
