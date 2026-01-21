@@ -17,6 +17,7 @@
   prowlarrName = "prowlarr";
   quiName = "qui";
   seerrName = "seerr";
+  profilarrName = "profilarr";
 
   category = "Media & Downloads";
   qbittorrentDescription = "BitTorrent Client";
@@ -35,6 +36,8 @@
   quiDescription = "qBittorrent UI";
   seerrDescription = "Media Requests";
   seerrDisplayName = "Seerr";
+  profilarrDisplayName = "Profilarr";
+  profilarrDescription = "Configuration Management";
 
   gluetunCategory = "Network & Administration";
   gluetunDescription = "VPN client";
@@ -288,6 +291,7 @@ in {
           };
         };
       };
+      profilarr.enable = lib.mkEnableOption "Profilarr";
       seerr.enable = lib.mkEnableOption "Seerr";
       qui = {
         enable = lib.mkEnableOption "qui";
@@ -639,6 +643,37 @@ in {
             name = seerrDisplayName;
             id = seerrName;
             icon = "di:overseerr";
+          };
+        };
+
+        ${profilarrName} = lib.mkIf cfg.profilarr.enable {
+          image = "docker.io/santiagosayshey/profilarr:v1.1.2";
+          volumes = [
+            "${storage}/${profilarrName}/config:/config"
+          ];
+
+          environment = {
+            PUID = config.nps.defaultUid;
+            PGID = config.nps.defaultGid;
+          };
+
+          port = 6868;
+          traefik.name = seerrName;
+          stack = stackName;
+          homepage = {
+            inherit category;
+            name = profilarrDisplayName;
+            settings = {
+              description = profilarrDescription;
+              icon = "profilarr";
+            };
+          };
+          glance = {
+            inherit category;
+            description = profilarrDescription;
+            name = profilarrDisplayName;
+            id = seerrName;
+            icon = "di:profilarr";
           };
         };
 
