@@ -2,6 +2,7 @@ let
   modules = {
     settings = ./settings.nix;
     adguard = ./adguard;
+    adventurelog = ./adventurelog;
     aiostreams = ./aiostreams;
     audiobookshelf = ./audiobookshelf;
     authelia = ./authelia;

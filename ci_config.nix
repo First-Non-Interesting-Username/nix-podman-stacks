@@ -23,6 +23,17 @@ in {
     stacks = {
       adguard.enable = true;
 
+      adventurelog = {
+        enable = true;
+        secretKeyFile = dummySecretFile;
+        db.passwordFile = dummySecretFile;
+        adminProvisioning = {
+          username = "admin";
+          email = "admin@example.com";
+          passwordFile = dummySecretFile;
+        };
+      };
+
       aiostreams = {
         enable = true;
         secretKeyFile = dummySecretFile;

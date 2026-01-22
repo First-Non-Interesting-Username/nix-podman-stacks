@@ -32,7 +32,8 @@
         "/immich-app/",
         "/beszel/",
         "/guacamole/",
-        "/kitchenowl/"
+        "/kitchenowl/",
+        "/adventurelog/"
       ],
       "groupName": "{{parentDir}}"
     },
