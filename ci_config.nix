@@ -746,6 +746,15 @@ in {
         crowdsec.middleware.bouncerKeyFile = dummySecretFile;
       };
 
+      trip = {
+        enable = true;
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyHash;
+        };
+      };
+
       uptime-kuma.enable = true;
 
       vaultwarden = {
