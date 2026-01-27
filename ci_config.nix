@@ -634,7 +634,7 @@ in {
 
       searxng = {
         enable = true;
-        secretKeyFile = dummySecret;
+        secretKeyFile = dummySecretFile;
         settings.engines = [
           {
             name = "dummy.online";
