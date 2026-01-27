@@ -51,6 +51,7 @@
         "/mariadb/",
         "/pgvecto-rs/",
         "/redis/",
+        "/valkey/",
         "/meilisearch/"
       ],
       "enabled": false

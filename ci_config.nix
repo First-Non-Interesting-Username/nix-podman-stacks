@@ -632,6 +632,17 @@ in {
         };
       };
 
+      searxng = {
+        enable = true;
+        secretKeyFile = dummySecret;
+        settings.engines = [
+          {
+            name = "dummy.online";
+            engine = "dummy";
+          }
+        ];
+      };
+
       shelfmark = {
         enable = true;
         downloadDirectory = "${config.nps.storageBaseDir}/booklore/bookdrop";

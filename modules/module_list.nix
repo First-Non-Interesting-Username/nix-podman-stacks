@@ -57,6 +57,7 @@ let
     papra = ./papra;
     pocketid = ./pocket-id;
     romm = ./romm;
+    searxng = ./searxng;
     shelfmark = ./shelfmark;
     sshwifty = ./sshwifty;
     stirling-pdf = ./stirling-pdf;
