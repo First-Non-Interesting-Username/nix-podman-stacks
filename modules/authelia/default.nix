@@ -357,16 +357,16 @@ in {
             IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE = cfg.oidc.hmacSecretFile;
           };
 
-        volumes =
-          [
-            "${storage}/db:/data"
-            "${storage}/notifier:/notifier"
-            "${cfg.settings}:/config/configuration.yml"
-          ]
-          ++ lib.optionals oidcEnabled [
-            "${cfg.oidc.jwksRsaKeyFile}:/secrets/oidc/jwks/rsa.key"
-            "${writeOidcJwksConfigFile "/secrets/oidc/jwks/rsa.key"}:/config/jwks_key_config.yml"
-          ];
+        volumeMap =
+          {
+            data = "${storage}/db:/data";
+            notifier = "${storage}/notifier:/notifier";
+            configuration = "${cfg.settings}:/config/configuration.yml";
+          }
+          // lib.optionalAttrs oidcEnabled {
+            rsaKey = "${cfg.oidc.jwksRsaKeyFile}:/secrets/oidc/jwks/rsa.key";
+            jwksKeyConfig = "${writeOidcJwksConfigFile "/secrets/oidc/jwks/rsa.key"}:/config/jwks_key_config.yml";
+          };
 
         wantsContainer = lib.optional (cfg.sessionProvider == "redis") redisName;
         stack = name;
@@ -392,7 +392,7 @@ in {
       ${redisName} = lib.mkIf (cfg.sessionProvider == "redis") {
         image = "docker.io/redis:8.2.1";
         stack = name;
-        volumes = ["${storage}/redis:/data"];
+        volumeMap.data = "${storage}/redis:/data";
 
         extraConfig.Container = {
           Notify = "healthy";
