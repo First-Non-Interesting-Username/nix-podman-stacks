@@ -207,12 +207,12 @@ in {
         configDir = "/app/config";
       in {
         image = "ghcr.io/twin/gatus:v5.34.0";
-        volumes =
-          [
-            "${yaml.generate "config.yml" settings}:${configDir}/config.yml"
-          ]
-          ++ (lib.map (f: "${f}:${configDir}/${builtins.baseNameOf f}") cfg.extraSettingsFiles)
-          ++ lib.optional (cfg.db.type == "sqlite") "${storage}/sqlite:/data";
+        volumeMap = {
+          config = "${yaml.generate "config.yml" settings}:${configDir}/config.yml";
+          data = lib.mkIf (cfg.db.type == "sqlite") "${storage}/sqlite:/data";
+        };
+        volumes = lib.map (f: "${f}:${configDir}/${builtins.baseNameOf f}") cfg.extraSettingsFiles;
+
         environment = {
           GATUS_CONFIG_PATH = configDir;
         };
@@ -253,7 +253,7 @@ in {
 
       ${dbName} = lib.mkIf (cfg.db.type == "postgres") {
         image = "docker.io/postgres:17";
-        volumes = ["${storage}/postgres:/var/lib/postgresql/data"];
+        volumeMap.data = "${storage}/postgres:/var/lib/postgresql/data";
         extraEnv = {
           POSTGRES_DB = "gatus";
           POSTGRES_USER = cfg.db.username;

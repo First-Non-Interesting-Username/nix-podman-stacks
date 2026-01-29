@@ -103,11 +103,11 @@ in {
       ${name} = {
         image = "ghcr.io/gotson/komga:1.23.6";
         user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
-        volumes = [
-          "${storage}/data:/data"
-          "${storage}/config:/config"
-          "${cfg.settings}:/config/application.yml"
-        ];
+        volumeMap = {
+          data = "${storage}/data:/data";
+          config = "${storage}/config:/config";
+          settings = "${cfg.settings}:/config/application.yml";
+        };
 
         extraEnv = {
           AUTHELIA_CLIENT_SECRET = lib.mkIf (cfg.oidc.enable) {fromFile = cfg.oidc.clientSecretFile;};

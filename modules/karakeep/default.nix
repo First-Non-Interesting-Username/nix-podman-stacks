@@ -108,9 +108,7 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/karakeep-app/karakeep:0.30.0";
-        volumes = [
-          "${storage}/data:/data"
-        ];
+        volumeMap.data = "${storage}/data:/data";
         environment = {
           DATA_DIR = "/data";
           MEILI_ADDR = "http://${meilisearchName}:7700";

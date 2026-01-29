@@ -112,9 +112,8 @@ in {
 
       ${backendName} = {
         image = "docker.io/tombursch/kitchenowl-backend:v0.7.6";
-        volumes = [
-          "${storage}/data:/data"
-        ];
+        volumeMap.data = "${storage}/data:/data";
+
         extraEnv =
           {
             JWT_SECRET_KEY.fromFile = cfg.jwtSecretFile;

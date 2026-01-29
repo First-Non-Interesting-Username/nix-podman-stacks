@@ -57,10 +57,10 @@ in {
       ${name} = {
         # renovate: versioning=regex:^(?<compatibility>.*)-(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
         image = "docker.io/kimai/kimai2:apache-2.47.0";
-        volumes = [
-          "${storage}/data:/opt/kimai/var/data"
-          "${storage}/plugins:/opt/kimai/var/plugins"
-        ];
+        volumeMap = {
+          data = "${storage}/data:/opt/kimai/var/data";
+          plugins = "${storage}/plugins:/opt/kimai/var/plugins";
+        };
 
         extraEnv = {
           ADMINMAIL = cfg.adminEmail;
@@ -92,7 +92,7 @@ in {
 
       ${dbName} = {
         image = "docker.io/mysql:9";
-        volumes = ["${storage}/db:/var/lib/mysql"];
+        volumeMap.data = "${storage}/db:/var/lib/mysql";
         extraEnv = {
           MYSQL_DATABASE = cfg.db.databaseName;
           MYSQL_USER = cfg.db.username;
