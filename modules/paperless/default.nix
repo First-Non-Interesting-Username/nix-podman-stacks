@@ -253,7 +253,7 @@ in {
 
       ${dbName} = {
         image = "docker.io/postgres:16";
-        volume.data = "${storage}/db:/var/lib/postgresql/data";
+        volumeMap.data = "${storage}/db:/var/lib/postgresql/data";
         extraEnv = {
           POSTGRES_DB = "paperless";
           POSTGRES_USER = cfg.db.username;
