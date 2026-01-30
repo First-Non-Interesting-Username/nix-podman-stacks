@@ -21,9 +21,7 @@ in {
     services.podman.containers.${name} = {
       image = "ghcr.io/arabcoders/watchstate:v1.0.6";
       user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
-      volumes = [
-        "${storage}/data:/config"
-      ];
+      volumeMap.data = "${storage}/data:/config";
 
       port = 8080;
       traefik.name = name;

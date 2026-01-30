@@ -17,10 +17,10 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
       image = "ghcr.io/louislam/uptime-kuma:beta";
-      volumes = [
-        "${storage}/data:/app/data"
-        "${config.nps.socketLocation}:/var/run/docker.sock:ro"
-      ];
+      volumeMap = {
+        data = "${storage}/data:/app/data";
+        socket = "${config.nps.socketLocation}:/var/run/docker.sock:ro";
+      };
       environment = {
         UPTIME_KUMA_DB_TYPE = "sqlite";
         PUID = config.nps.defaultUid;

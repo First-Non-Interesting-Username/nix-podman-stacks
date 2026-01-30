@@ -304,12 +304,12 @@ in {
         }
         // cfg.extraEnv;
 
-      volumes = [
-        "${storage}/letsencrypt:/letsencrypt"
-        "${cfg.staticConfig}:/etc/traefik/traefik.yml:ro"
-        "${yaml.generate "dynamic.yml" cfg.dynamicConfig}:/dynamic/config.yml"
-        "${./config/IP2LOCATION-LITE-DB1.IPV6.BIN}:/plugins/geoblock/IP2LOCATION-LITE-DB1.IPV6.BIN"
-      ];
+      volumeMap = {
+        letsEncrypt = "${storage}/letsencrypt:/letsencrypt";
+        staticConfig = "${cfg.staticConfig}:/etc/traefik/traefik.yml:ro";
+        dynamicConfig = "${yaml.generate "dynamic.yml" cfg.dynamicConfig}:/dynamic/config.yml";
+        geoBlockDb = "${./config/IP2LOCATION-LITE-DB1.IPV6.BIN}:/plugins/geoblock/IP2LOCATION-LITE-DB1.IPV6.BIN";
+      };
 
       labels = {
         "traefik.http.routers.${traefik.name}.service" = "api@internal";

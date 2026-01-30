@@ -110,9 +110,7 @@ in {
       ${name} = {
         image = "ghcr.io/itskovacs/trip:1.36.1";
         exec = "fastapi run /app/trip/main.py --host 0.0.0.0";
-        volumes = [
-          "${storage}/storage:/app/storage"
-        ];
+        volumeMap.storage = "${storage}/storage:/app/storage";
 
         extraEnv =
           {

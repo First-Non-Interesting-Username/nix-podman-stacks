@@ -148,9 +148,7 @@ in {
 
     services.podman.containers.${name} = {
       image = "ghcr.io/pocket-id/pocket-id:v2.2.0";
-      volumes = [
-        "${storage}/data:/app/data"
-      ];
+      volumeMap.data = "${storage}/data:/app/data";
 
       extraEnv =
         {

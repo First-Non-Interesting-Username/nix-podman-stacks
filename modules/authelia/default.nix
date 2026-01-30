@@ -361,7 +361,7 @@ in {
           {
             data = "${storage}/db:/data";
             notifier = "${storage}/notifier:/notifier";
-            configuration = "${cfg.settings}:/config/configuration.yml";
+            settings = "${cfg.settings}:/config/configuration.yml";
           }
           // lib.optionalAttrs oidcEnabled {
             rsaKey = "${cfg.oidc.jwksRsaKeyFile}:/secrets/oidc/jwks/rsa.key";

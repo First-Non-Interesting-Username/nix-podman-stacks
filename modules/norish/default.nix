@@ -105,9 +105,7 @@ in {
       ${name} = {
         image = "docker.io/norishapp/norish:v0.15.6-beta";
         user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
-        volumes = [
-          "${storage}/data:/app/uploads"
-        ];
+        volumeMap.data = "${storage}/data:/app/uploads";
 
         extraEnv =
           {

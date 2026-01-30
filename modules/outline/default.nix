@@ -125,7 +125,7 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "docker.io/outlinewiki/outline:1.3.0";
-        volumes = ["${storage}/data:/var/lib/outline/data"];
+        volumeMap.data = "${storage}/data:/var/lib/outline/data";
         extraEnv = let
           utils = import ../utils.nix {inherit lib config;};
         in
@@ -189,7 +189,7 @@ in {
 
       ${dbName} = {
         image = "docker.io/postgres:17";
-        volumes = ["${storage}/db:/var/lib/postgresql/data"];
+        volumeMap.data = "${storage}/db:/var/lib/postgresql/data";
         extraEnv = {
           POSTGRES_DB = "outline";
           POSTGRES_USER = cfg.db.username;

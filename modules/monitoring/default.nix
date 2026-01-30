@@ -397,13 +397,13 @@ in {
       ${grafanaName} = lib.mkIf cfg.grafana.enable {
         image = "docker.io/grafana/grafana:12.3.1";
         user = config.nps.defaultUid;
-        volumes = [
-          "${storage}/grafana/data:/var/lib/grafana"
-          "${cfg.grafana.settings}:/etc/grafana/grafana.ini"
-          "${cfg.grafana.datasources}:/etc/grafana/provisioning/datasources/datasources.yaml"
-          "${cfg.grafana.dashboardProvider}:/etc/grafana/provisioning/dashboards/provider.yml"
-          "${dashboards}:${dashboardPath}"
-        ];
+        volumeMap = {
+          data = "${storage}/grafana/data:/var/lib/grafana";
+          settings = "${cfg.grafana.settings}:/etc/grafana/grafana.ini";
+          datasources = "${cfg.grafana.datasources}:/etc/grafana/provisioning/datasources/datasources.yaml";
+          dashboardProvider = "${cfg.grafana.dashboardProvider}:/etc/grafana/provisioning/dashboards/provider.yml";
+          dashboards = "${dashboards}:${dashboardPath}";
+        };
 
         environment = lib.optionalAttrs (!cfg.grafana.oidc.enable) {
           GF_AUTH_ANONYMOUS_ENABLED = "true";
@@ -461,10 +461,10 @@ in {
         image = "docker.io/grafana/loki:3.6.4";
         exec = "-config.file=/etc/loki/local-config.yaml";
         user = config.nps.defaultUid;
-        volumes = [
-          "${storage}/loki/data:/loki"
-          "${cfg.loki.config}:/etc/loki/local-config.yaml"
-        ];
+        volumeMap = {
+          data = "${storage}/loki/data:/loki";
+          settings = "${cfg.loki.config}:/etc/loki/local-config.yaml";
+        };
 
         stack = stackName;
         homepage = {
@@ -489,9 +489,7 @@ in {
       in
         lib.mkIf cfg.alloy.enable {
           image = "docker.io/grafana/alloy:v1.12.2";
-          volumes = [
-            "${cfg.alloy.config}:${configDst}"
-          ];
+          volumeMap.settings = "${cfg.alloy.config}:${configDst}";
           exec = "run --server.http.listen-addr=0.0.0.0:${toString cfg.alloy.port} --storage.path=/var/lib/alloy/data ${configDst}";
 
           stack = stackName;
@@ -521,12 +519,11 @@ in {
           image = "docker.io/prom/prometheus:v3.9.1";
           exec = "--config.file=${configDst}";
           user = config.nps.defaultUid;
-          volumes =
-            [
-              "${storage}/prometheus/data:/prometheus"
-              "${cfg.prometheus.settings}:${configDst}"
-            ]
-            ++ lib.optional (cfg.prometheus.rules != {}) "${yaml.generate "rules.yml" cfg.prometheus.rules}:/etc/prometheus/rules.yml";
+          volumeMap = {
+            data = "${storage}/prometheus/data:/prometheus";
+            settings = "${cfg.prometheus.settings}:${configDst}";
+            rules = lib.mkIf (cfg.prometheus.rules != {}) "${yaml.generate "rules.yml" cfg.prometheus.rules}:/etc/prometheus/rules.yml";
+          };
 
           port = cfg.prometheus.port;
           stack = stackName;
@@ -551,9 +548,8 @@ in {
 
       ${podmanExporterName} = lib.mkIf cfg.podmanExporter.enable {
         image = "quay.io/navidys/prometheus-podman-exporter:v1.20.0";
-        volumes = [
-          "${config.nps.socketLocation}:/var/run/podman/podman.sock"
-        ];
+        volumeMap.socket = "${config.nps.socketLocation}:/var/run/podman/podman.sock";
+
         environment.CONTAINER_HOST = "unix:///var/run/podman/podman.sock";
         user = config.nps.defaultUid;
         extraPodmanArgs = ["--security-opt=label=disable"];
@@ -579,10 +575,10 @@ in {
       ${alertmanagerName} = lib.mkIf cfg.alertmanager.enable {
         image = "docker.io/prom/alertmanager:v0.30.1";
         user = config.nps.defaultUid;
-        volumes = [
-          "${cfg.alertmanager.settings}:/config/alertmanager.yml"
-          "${storage}/${alertmanagerName}:/data"
-        ];
+        volumeMap = {
+          settings = "${cfg.alertmanager.settings}:/config/alertmanager.yml";
+          data = "${storage}/${alertmanagerName}:/data";
+        };
         exec = "--config.file=/config/alertmanager.yml --storage.path=/data";
 
         stack = stackName;

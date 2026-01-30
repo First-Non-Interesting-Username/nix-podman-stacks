@@ -166,10 +166,10 @@ in {
 
     services.podman.containers.${name} = {
       image = "ghcr.io/h44z/wg-portal:v2.1.1";
-      volumes = [
-        "${storage}/data:/app/data"
-        "${cfg.settings}:/app/config/config.yaml"
-      ];
+      volumeMap = {
+        data = "${storage}/data:/app/data";
+        settings = "${cfg.settings}:/app/config/config.yaml";
+      };
       ports = ["${toString cfg.port}:${toString cfg.port}/udp"];
       addCapabilities = [
         "NET_ADMIN"
