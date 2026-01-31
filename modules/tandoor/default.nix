@@ -91,10 +91,10 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/tandoorrecipes/recipes:2.4.1";
-        volumes = [
-          "${storage}/staticfiles:/opt/recipes/staticfiles"
-          "${storage}/mediafiles:/opt/recipes/mediafiles"
-        ];
+        volumeMap = {
+          staticFiles = "${storage}/staticfiles:/opt/recipes/staticfiles";
+          mediaFiles = "${storage}/mediafiles:/opt/recipes/mediafiles";
+        };
 
         extraEnv = let
           db = cfg.containers.${dbName}.extraEnv;
@@ -156,7 +156,7 @@ in {
 
       ${dbName} = {
         image = "docker.io/postgres:18";
-        volumes = ["${storage}/postgres:/var/lib/postgresql"];
+        volumeMap.data = "${storage}/postgres:/var/lib/postgresql";
         extraEnv = {
           POSTGRES_DB = "tandoor";
           POSTGRES_USER = cfg.db.username;

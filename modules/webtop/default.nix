@@ -31,10 +31,10 @@ in {
     services.podman.containers.${name} = {
       # renovate: versioning=regex:^(?<compatibility>.*?)-(?<major>v?\d+)-(?<minor>\d+)-(?<patch>\d+)[\.-]*(?<build>r?\d+)$
       image = "ghcr.io/linuxserver/webtop:arch-xfce-2025-07-12-ls239";
-      volumes = [
-        "${storage}/home:/home"
-        "${storage}/config:/config"
-      ];
+      volumeMap = {
+        home = "${storage}/home:/home";
+        config = "${storage}/config:/config";
+      };
       extraEnv = {
         CUSTOM_USER = cfg.username;
         PASSWORD = lib.mkIf (cfg.passwordFile != null) {fromFile = cfg.passwordFile;};

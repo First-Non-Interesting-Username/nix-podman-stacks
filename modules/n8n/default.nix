@@ -19,7 +19,7 @@ in {
     services.podman.containers.${name} = {
       image = "docker.n8n.io/n8nio/n8n:2.6.2";
       # Chown host volume automatically (:U), since n8n will always run as UID/GID 1000
-      volumes = ["${storage}/data:/home/node/.n8n:U"];
+      volumeMap.data = "${storage}/data:/home/node/.n8n:U";
       environment = {
         DB_TYPE = "sqlite";
         GENERIC_TIMEZONE = config.nps.defaultTz;

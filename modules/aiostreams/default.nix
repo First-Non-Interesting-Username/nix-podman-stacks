@@ -52,7 +52,7 @@ in {
         HealthRetries = 5;
         HealthStartPeriod = "10s";
       };
-      volumes = ["${storage}/data:/app/data"];
+      volumeMap.data = "${storage}/data:/app/data";
       environment = {
         ADDON_NAME = "AIOStreams";
         ADDON_ID = "aiostreams.viren070.com";

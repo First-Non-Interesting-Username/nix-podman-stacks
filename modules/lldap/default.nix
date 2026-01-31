@@ -319,22 +319,22 @@ in {
     services.podman.containers.${name} = {
       # Always use rootless images here with root-user, because otherwise chown on the read-only
       # lldap_config.toml will be attemped which fails
-
       # renovate: versioning=loose
       image = "ghcr.io/lldap/lldap:2026-01-22-alpine-rootless";
       user = config.nps.defaultUid;
+      volumeMap = {
+        db = "${storage}/db:/db";
+        data = "${cfg.settings}:/data/lldap_config.toml";
+        bootstrap = "${bootstrapWrapper}:/app/bootstrap_wrapper.sh";
+      };
+
       volumes =
-        [
-          "${storage}/db:/db"
-          "${cfg.settings}:/data/lldap_config.toml"
-        ]
-        ++ (builtins.concatLists (map (s: s.volume) (lib.attrValues userPasswordFiles)))
+        (builtins.concatLists (map (s: s.volume) (lib.attrValues userPasswordFiles)))
         ++ lib.flatten [
           finalUserVolumes
           finalGroupVolumes
           finalUserSchemaVolumes
           finalGroupSchemaVolumes
-          "${bootstrapWrapper}:/app/bootstrap_wrapper.sh"
         ];
 
       extraConfig.Service.ExecStartPost = ["${lib.getExe config.nps.package} exec ${name} /app/bootstrap_wrapper.sh"];

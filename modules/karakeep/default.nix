@@ -108,9 +108,7 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/karakeep-app/karakeep:0.30.0";
-        volumes = [
-          "${storage}/data:/data"
-        ];
+        volumeMap.data = "${storage}/data:/data";
         environment = {
           DATA_DIR = "/data";
           MEILI_ADDR = "http://${meilisearchName}:7700";
@@ -177,7 +175,7 @@ in {
         extraEnv = {
           MEILI_MASTER_KEY.fromFile = cfg.meiliMasterKeyFile;
         };
-        volumes = ["${storage}/meilisearch:/meili_data"];
+        volumeMap.data = "${storage}/meilisearch:/meili_data";
 
         stack = name;
         glance = {

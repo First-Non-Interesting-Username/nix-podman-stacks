@@ -18,10 +18,10 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
       image = "docker.io/adguard/adguardhome:v0.107.71";
-      volumes = [
-        "${storage}/work:/opt/adguardhome/work"
-        "${storage}/conf:/opt/adguardhome/conf"
-      ];
+      volumeMap = {
+        work = "${storage}/work:/opt/adguardhome/work";
+        conf = "${storage}/conf:/opt/adguardhome/conf";
+      };
       ports = let
         ip = config.nps.hostIP4Address;
       in [

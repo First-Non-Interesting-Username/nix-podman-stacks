@@ -108,7 +108,7 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/usememos/memos:0.25.3";
-        volumes = ["${storage}/data:/var/opt/memos"];
+        volumeMap.data = "${storage}/data:/var/opt/memos";
         environment = {
           MEMOS_MODE = "prod";
           MEMOS_PORT = 5230;
@@ -140,7 +140,7 @@ in {
 
       ${dbName} = lib.mkIf (cfg.db.type == "postgres") {
         image = "docker.io/postgres:17";
-        volumes = ["${storage}/postgres:/var/lib/postgresql/data"];
+        volumeMap.data = "${storage}/postgres:/var/lib/postgresql/data";
         extraEnv = {
           POSTGRES_DB = "memos";
           POSTGRES_USER = cfg.db.username;

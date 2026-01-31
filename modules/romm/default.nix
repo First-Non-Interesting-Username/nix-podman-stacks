@@ -203,13 +203,13 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/rommapp/romm:4.6.1";
-        volumes = [
-          "${storage}/resources:/romm/resources"
-          "${storage}/redis_data:/redis-data"
-          "${cfg.romLibraryPath}:/romm/library"
-          "${storage}/assets:/romm/assets"
-          "${cfg.settings}:/romm/config/config.yml"
-        ];
+        volumeMap = {
+          resources = "${storage}/resources:/romm/resources";
+          redisData = "${storage}/redis_data:/redis-data";
+          library = "${cfg.romLibraryPath}:/romm/library";
+          assets = "${storage}/assets:/romm/assets";
+          settings = "${cfg.settings}:/romm/config/config.yml";
+        };
 
         extraEnv = let
           db = cfg.containers.${dbName}.environment;
@@ -290,7 +290,7 @@ in {
       };
       ${dbName} = {
         image = "docker.io/mariadb:11";
-        volumes = ["${storage}/db:/var/lib/mysql"];
+        volumeMap.data = "${storage}/db:/var/lib/mysql";
         extraEnv = {
           MARIADB_DATABASE = "romm";
           MARIADB_USER = "romm-user";

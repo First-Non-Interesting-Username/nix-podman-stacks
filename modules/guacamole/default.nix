@@ -179,10 +179,10 @@ in {
 
       ${dbName} = lib.mkIf cfg.db.enable {
         image = "docker.io/postgres:17";
-        volumes = [
-          "${storage}/postgres:/var/lib/postgresql/data"
-          "${./initdb.sql}:/docker-entrypoint-initdb.d/initdb.sql"
-        ];
+        volumeMap = {
+          data = "${storage}/postgres:/var/lib/postgresql/data";
+          initSql = "${./initdb.sql}:/docker-entrypoint-initdb.d/initdb.sql";
+        };
         extraEnv = {
           POSTGRES_DB = name;
           POSTGRES_USER = cfg.db.username;

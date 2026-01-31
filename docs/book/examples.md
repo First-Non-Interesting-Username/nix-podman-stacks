@@ -98,6 +98,27 @@ In case of conflicting definitions, instead of overriding all attributes of an a
 }
 ```
 
+### Override individual Volumes
+
+When overriding the `volumes` option (list type), the full list of new volumes has to be specified.
+For stacks that define multiple volumes, this may be undesired, especially if only a single volume definition should be overriden.
+
+To allow overriding individual volumes, the nps modules will declare the [`volumeMap`](/container-options#services.podman.containers.<name>.volumeMap) option. This is a simple attribute set wrapper around the `volumes` option, which allows refering to individual volumes.
+
+Example:
+
+```nix
+{
+  nps.stacks = {
+    paperless.containers.paperless.volumeMap = {
+      media = lib.mkForce "/mnt/hdd/documents:/usr/src/paperless/media";
+    };
+  };
+}
+```
+
+This will only override the volume definition for the media files, all other volumes will remain unaffected.
+
 ## Authelia
 
 ### Forward Auth

@@ -96,10 +96,10 @@
     arrCfg = cfg.${name};
     upperName = lib.toUpper name;
   in {
-    volumes = [
-      "${storage}/${name}:/config"
-      "${mediaStorage}:/media"
-    ];
+    volumeMap = {
+      config = "${storage}/${name}:/config";
+      media = "${mediaStorage}:/media";
+    };
 
     extraEnv =
       {
@@ -128,15 +128,15 @@
   in
     lib.mkIf (arrCfg.db.type == "postgres") {
       image = "docker.io/postgres:18";
-      volumes = let
+      volumeMap = let
         init = pkgs.writeText "init.sql" ''
           CREATE DATABASE ${name}_log;
         '';
-      in [
+      in {
         # Needs extra folder, otherwise its mounted into *arr, which will chown all folders -> db fails to start
-        "${storage}/${name}_postgres:/var/lib/postgresql"
-        "${init}:/docker-entrypoint-initdb.d/init.sql"
-      ];
+        data = "${storage}/${name}_postgres:/var/lib/postgresql";
+        initSql = "${init}:/docker-entrypoint-initdb.d/init.sql";
+      };
 
       extraEnv = {
         POSTGRES_USER = arrCfg.db.username;
@@ -231,7 +231,11 @@ in {
         settings = lib.mkOption {
           type = toml.type;
           apply = toml.generate "config.toml";
-          description = "Additional Gluetun configuration settings.";
+          description = ''
+            Additional Gluetun configuration settings
+
+            See <https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/control-server.md#configuration>
+          '';
         };
       };
       qbittorrent = {
@@ -417,10 +421,10 @@ in {
           image = "docker.io/qmcgaw/gluetun:v3.41.0";
           addCapabilities = ["NET_ADMIN" "NET_RAW"];
           devices = ["/dev/net/tun:/dev/net/tun"];
-          volumes = [
-            "${storage}/${gluetunName}:/gluetun"
-            "${cfg.gluetun.settings}:/gluetun/auth/config.toml"
-          ];
+          volumeMap = {
+            data = "${storage}/${gluetunName}:/gluetun";
+            setings = "${cfg.gluetun.settings}:/gluetun/auth/config.toml";
+          };
           environment = {
             WIREGUARD_MTU = 1320;
             HTTP_CONTROL_SERVER_LOG = "off";
@@ -467,10 +471,10 @@ in {
           image = "docker.io/linuxserver/qbittorrent:5.1.4";
 
           network = lib.mkIf cfg.gluetun.enable (lib.mkForce ["container:${gluetunName}"]);
-          volumes = [
-            "${storage}/${qbittorrentName}:/config"
-            "${mediaStorage}:/media"
-          ];
+          volumeMap = {
+            config = "${storage}/${qbittorrentName}:/config";
+            media = "${mediaStorage}:/media";
+          };
 
           environment = {
             PUID = config.nps.defaultUid;
@@ -505,12 +509,11 @@ in {
 
         ${quiName} = lib.mkIf cfg.qui.enable {
           image = "ghcr.io/autobrr/qui:v1.13.1";
-          volumes =
-            [
-              "${storage}/${quiName}:/config"
-              "${mediaStorage}:/media"
-            ]
-            ++ lib.optional (cfg.qui.adminPasswordFile != null) "${cfg.qui.adminPasswordFile}:/run/secrets/admin_password";
+          volumeMap = {
+            config = "${storage}/${quiName}:/config";
+            media = "${mediaStorage}:/media";
+            adminPassword = lib.mkIf (cfg.qui.adminPasswordFile != null) "${cfg.qui.adminPasswordFile}:/run/secrets/admin_password";
+          };
 
           extraEnv = lib.optionalAttrs cfg.qui.oidc.enable {
             QUI__OIDC_ENABLED = true;
@@ -571,12 +574,11 @@ in {
         in
           lib.mkIf cfg.jellyfin.enable {
             image = "lscr.io/linuxserver/jellyfin:10.11.6";
-            volumes =
-              [
-                "${storage}/${jellyfinName}:/config"
-                "${mediaStorage}:/media"
-              ]
-              ++ lib.optional (cfg.jellyfin.oidc.enable) "${brandingXml}:/config/branding.xml";
+            volumeMap = {
+              config = "${storage}/${jellyfinName}:/config";
+              media = "${mediaStorage}:/media";
+              brandingXml = lib.mkIf (cfg.jellyfin.oidc.enable) "${brandingXml}:/config/branding.xml";
+            };
 
             templateMount = lib.optional cfg.jellyfin.oidc.enable {
               templatePath = pkgs.writeText "oidc-template" (
@@ -623,9 +625,7 @@ in {
         ${seerrName} = lib.mkIf cfg.seerr.enable {
           image = "ghcr.io/seerr-team/seerr:develop";
           user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
-          volumes = [
-            "${storage}/${seerrName}/config:/app/config"
-          ];
+          volumeMap.config = "${storage}/${seerrName}/config:/app/config";
           environment.PORT = 5055;
 
           port = 5055;
@@ -650,9 +650,7 @@ in {
 
         ${profilarrName} = lib.mkIf cfg.profilarr.enable {
           image = "docker.io/santiagosayshey/profilarr:v1.1.4";
-          volumes = [
-            "${storage}/${profilarrName}/config:/config"
-          ];
+          volumeMap.config = "${storage}/${profilarrName}/config:/config";
 
           environment = {
             PUID = config.nps.defaultUid;

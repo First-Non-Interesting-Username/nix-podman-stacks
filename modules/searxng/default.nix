@@ -68,11 +68,11 @@ in {
       in {
         image = "ghcr.io/searxng/searxng:2026.1.27-966988e36";
 
-        volumes = [
-          "${storage}/config:/etc/searxng"
-          "${storage}/data:/var/cache/searxng"
-          "${cfg.settings}:${containerConfigPath}"
-        ];
+        volumeMap = {
+          config = "${storage}/config:/etc/searxng";
+          data = "${storage}/data:/var/cache/searxng";
+          settings = "${cfg.settings}:${containerConfigPath}";
+        };
         extraEnv =
           {
             SEARXNG_SECRET.fromFile = cfg.secretKeyFile;
@@ -102,7 +102,7 @@ in {
 
       ${valkeyName} = {
         image = "docker.io/valkey/valkey:9-alpine";
-        volumes = ["${storage}/valkey/data:/data"];
+        volumeMap.data = "${storage}/valkey/data:/data";
         exec = "valkey-server --save 30 1 --loglevel warning";
         stack = name;
         extraConfig.Container = {

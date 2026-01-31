@@ -34,10 +34,10 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
       image = "docker.io/deluan/navidrome:0.59.0";
-      volumes = [
-        "${storage}/data:/data"
-        "${mediaStorage}/music:/music:ro"
-      ];
+      volumeMap = {
+        data = "${storage}/data:/data";
+        music = "${mediaStorage}/music:/music:ro";
+      };
 
       extraEnv =
         {

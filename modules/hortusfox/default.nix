@@ -65,13 +65,13 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/danielbrendel/hortusfox-web:v5.7";
-        volumes = [
-          "${storage}/img:/var/www/html/public/img"
-          "${storage}/logs:/var/www/html/app/logs"
-          "${storage}/backup:/var/www/html/public/backup"
-          "${storage}/themes:/var/www/html/public/themes"
-          "${storage}/migrations:/var/www/html/app/migrations"
-        ];
+        volumeMap = {
+          img = "${storage}/img:/var/www/html/public/img";
+          logs = "${storage}/logs:/var/www/html/app/logs";
+          backup = "${storage}/backup:/var/www/html/public/backup";
+          themes = "${storage}/themes:/var/www/html/public/themes";
+          migrations = "${storage}/migrations:/var/www/html/app/migrations";
+        };
 
         extraEnv = let
           db = cfg.containers.${dbName}.environment;
@@ -111,7 +111,7 @@ in {
 
       ${dbName} = {
         image = "docker.io/mariadb:12";
-        volumes = ["${storage}/db:/var/lib/mysql"];
+        volumeMap.data = "${storage}/db:/var/lib/mysql";
         extraEnv = {
           MARIADB_DATABASE = "hortusfox";
           MARIADB_USER = "hortusfox";

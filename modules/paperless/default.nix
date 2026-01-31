@@ -159,12 +159,12 @@ in {
           dbName
           brokerName
         ];
-        volumes = [
-          "${storage}/data:/usr/src/paperless/data"
-          "${storage}/media:/usr/src/paperless/media"
-          "${storage}/export:/usr/src/paperless/export"
-          "${storage}/consume:/usr/src/paperless/consume"
-        ];
+        volumeMap = {
+          data = "${storage}/data:/usr/src/paperless/data";
+          media = "${storage}/media:/usr/src/paperless/media";
+          export = "${storage}/export:/usr/src/paperless/export";
+          consume = "${storage}/consume:/usr/src/paperless/consume";
+        };
         environment = {
           PAPERLESS_REDIS = "redis://${brokerName}:6379";
           PAPERLESS_DBHOST = dbName;
@@ -253,7 +253,7 @@ in {
 
       ${dbName} = {
         image = "docker.io/postgres:16";
-        volumes = ["${storage}/db:/var/lib/postgresql/data"];
+        volumeMap.data = "${storage}/db:/var/lib/postgresql/data";
         extraEnv = {
           POSTGRES_DB = "paperless";
           POSTGRES_USER = cfg.db.username;
@@ -309,9 +309,7 @@ in {
       in
         lib.mkIf cfg.ftp.enable {
           image = "docker.io/garethflowers/ftp-server:0.9.2";
-          volumes = [
-            "${storage}/consume:${home}"
-          ];
+          volumeMap.home = "${storage}/consume:${home}";
           extraEnv = {
             PUBLIC_IP = config.nps.hostIP4Address;
             FTP_USER = user;

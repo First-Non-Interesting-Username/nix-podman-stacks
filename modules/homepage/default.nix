@@ -189,14 +189,14 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
       image = "ghcr.io/gethomepage/homepage:v1.9.0";
-      volumes = [
-        "${externalStorage}:/ext:ro"
-        "${docker}:/app/config/docker.yaml"
-        "${services}:/app/config/services.yaml"
-        "${settings}:/app/config/settings.yaml"
-        "${widgets}:/app/config/widgets.yaml"
-        "${bookmarks}:/app/config/bookmarks.yaml"
-      ];
+      volumeMap = {
+        ext = "${externalStorage}:/ext:ro";
+        docker = "${docker}:/app/config/docker.yaml";
+        services = "${services}:/app/config/services.yaml";
+        settings = "${settings}:/app/config/settings.yaml";
+        widgets = "${widgets}:/app/config/widgets.yaml";
+        bookmarks = "${bookmarks}:/app/config/bookmarks.yaml";
+      };
 
       environment = {
         PUID = config.nps.defaultUid;

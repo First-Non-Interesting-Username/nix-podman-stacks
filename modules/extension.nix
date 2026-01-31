@@ -102,6 +102,22 @@ in {
               '';
             };
 
+            volumeMap = lib.mkOption {
+              type = lib.types.attrsOf lib.types.str;
+              default = {};
+              example = {
+                db = "/host/foo/db:/db";
+                config = "/host/bar/config:/config";
+              };
+              description = ''
+                Attribute set of named volume mappings.
+                This is just a wrapper of the `volumes` option, that allows defining volume mappings using an attrset.
+
+                The stack modules will use the `volumeMap` to set volume mappings for the container. This allows overriding specific
+                volume mappings without having to redefine the entire `volumes` list.
+              '';
+            };
+
             fileEnvMount = lib.mkOption {
               type = lib.types.attrsOf (
                 lib.types.oneOf [
@@ -323,13 +339,17 @@ in {
                   ++ lib.optional (extraTemplateEnv != {}) envFromTemplateLocation
                   ++ lib.optional (extraCommandEnv != {}) envFromCommandLocation;
 
-                volumes =
-                  lib.mkAfter ((config.fileEnvMount |> lib.attrValues |> lib.map (v: "${v.sourcePath}:${v.destPath}"))
-                    ++ (config.templateMount |> lib.map (m: "${mkTemplateMountSource m.destPath}:${m.destPath}")));
+                volumes = lib.mkMerge [
+                  (lib.attrValues config.volumeMap)
+                  (lib.mkAfter ((config.fileEnvMount |> lib.attrValues |> lib.map (v: "${v.sourcePath}:${v.destPath}"))
+                      ++ (config.templateMount |> lib.map (m: "${mkTemplateMountSource m.destPath}:${m.destPath}"))))
+                ];
 
                 extraConfig = {
-                  Container = {
-                    HealthOnFailure = lib.mkDefault "kill";
+                  Container = let
+                    hasHealthCheck = ((config.HealthCmd or "") != "") || ((config.HealthStartupCmd or "") != "");
+                  in {
+                    HealthOnFailure = lib.mkIf hasHealthCheck (lib.mkDefault "kill");
                   };
                   Unit = {
                     Requires = config.dependsOn ++ config.dependsOnContainer;

@@ -110,11 +110,11 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/booklore-app/booklore:v1.18.5";
-        volumes = [
-          "${storage}/data:/data"
-          "${storage}/books:/books"
-          "${storage}/bookdrop:/bookdrop"
-        ];
+        volumeMap = {
+          data = "${storage}/data:/data";
+          books = "${storage}/books:/books";
+          bookdrop = "${storage}/bookdrop:/bookdrop";
+        };
 
         extraEnv = let
           db = cfg.containers.${dbName}.extraEnv;
@@ -150,7 +150,7 @@ in {
       };
       ${dbName} = {
         image = "docker.io/mariadb:11";
-        volumes = ["${storage}/db:/var/lib/mysql"];
+        volumeMap.data = "${storage}/db:/var/lib/mysql";
         extraEnv = {
           MARIADB_DATABASE = "booklore";
           MARIADB_USER = "booklore";

@@ -97,11 +97,11 @@ in {
       ${name} = {
         image = "ghcr.io/fccview/jotty:1.19.1";
 
-        volumes = [
-          "${storage}/data:/app/data"
-          "${storage}/config:/app/config"
-          "${storage}/cache:/app/.next/cache"
-        ];
+        volumeMap = {
+          data = "${storage}/data:/app/data";
+          config = "${storage}/config:/app/config";
+          cache = "${storage}/cache:/app/.next/cache";
+        };
         environment = {
           NODE_ENV = "production";
           PUID = config.nps.defaultUid;

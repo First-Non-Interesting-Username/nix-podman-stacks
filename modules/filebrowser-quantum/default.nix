@@ -190,12 +190,11 @@ in {
 
     services.podman.containers.${name} = {
       image = "ghcr.io/gtsteffaniak/filebrowser:1.2.1-beta";
-      volumes =
-        [
-          "${yaml.generate "config.yml" cfg.settings}:/home/filebrowser/config.yml"
-          "${storage}/db:/home/filebrowser/db"
-        ]
-        ++ lib.mapAttrsToList (k: v: "${k}:${v.path}") cfg.mounts;
+      volumeMap = {
+        settings = "${yaml.generate "config.yml" cfg.settings}:/home/filebrowser/config.yml";
+        db = "${storage}/db:/home/filebrowser/db";
+      };
+      volumes = lib.mapAttrsToList (k: v: "${k}:${v.path}") cfg.mounts;
 
       extraEnv = {
         FILEBROWSER_CONFIG = "/home/filebrowser/config.yml";

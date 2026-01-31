@@ -117,7 +117,7 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/drytrix/timetracker:4.15.0";
-        volumes = ["${storage}:/data/"];
+        volumeMap.data = "${storage}:/data/";
         user = config.nps.defaultUid;
         extraEnv =
           {
@@ -176,7 +176,7 @@ in {
 
       ${dbName} = lib.mkIf (cfg.db.type == "postgres") {
         image = "docker.io/postgres:17";
-        volumes = ["${storage}/db:/var/lib/postgresql/data"];
+        volumeMap.data = "${storage}/db:/var/lib/postgresql/data";
         extraEnv = {
           POSTGRES_DB = "timetracker";
           POSTGRES_USER = cfg.db.username;

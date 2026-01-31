@@ -338,9 +338,7 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "codeberg.org/forgejo/forgejo:14";
-        volumes = [
-          "${storage}/data:/data"
-        ];
+        volumeMap.data = "${storage}/data:/data";
         ports = ["2222:22"];
 
         extraConfig.Container = {
@@ -391,7 +389,7 @@ in {
 
       ${dbName} = lib.mkIf (cfg.db.type == "postgres") {
         image = "docker.io/postgres:18";
-        volumes = ["${storage}/postgres:/var/lib/postgresql"];
+        volumeMap.data = "${storage}/postgres:/var/lib/postgresql";
         extraEnv = {
           POSTGRES_DB = "forgejo";
           POSTGRES_USER = cfg.db.username;

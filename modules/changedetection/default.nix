@@ -20,9 +20,9 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/dgtlmoon/changedetection.io:0.52.9";
-        volumes = [
-          "${storage}:/datastore"
-        ];
+
+        volumeMap.data = "${storage}:/datastore";
+
         environment = {
           PLAYWRIGHT_DRIVER_URL = "ws://${browserName}:3000";
         };

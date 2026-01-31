@@ -70,17 +70,16 @@ in {
         PUID = config.nps.defaultUid;
         PGID = config.nps.defaultGid;
       };
-      volumes = let
+      volumeMap = let
         cloudflareBypassConfig = {
           USING_EXTERNAL_BYPASSER = true;
           EXT_BYPASSER_URL = "http://flaresolverr:8191";
         };
-      in
-        [
-          "${storage}/config:/config"
-          "${cfg.downloadDirectory}:${ingestDir}"
-        ]
-        ++ lib.optional cfg.flaresolverr.enable "${pkgs.writers.writeJSON "cf_bypass.json" cloudflareBypassConfig}:/config/plugins/cloudflare_bypass.json";
+      in {
+        config = "${storage}/config:/config";
+        ingest = "${cfg.downloadDirectory}:${ingestDir}";
+        cfBypassSettings = lib.mkIf cfg.flaresolverr.enable "${pkgs.writers.writeJSON "cf_bypass.json" cloudflareBypassConfig}:/config/plugins/cloudflare_bypass.json";
+      };
 
       port = port;
       traefik.name = name;

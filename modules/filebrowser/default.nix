@@ -5,7 +5,6 @@
 }: let
   name = "filebrowser";
   storage = "${config.nps.storageBaseDir}/${name}";
-  externalStorage = config.nps.externalStorageBaseDir;
   cfg = config.nps.stacks.${name};
 
   category = "General";
@@ -33,12 +32,12 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
       image = "docker.io/filebrowser/filebrowser:v2.56.0-s6";
-      volumes =
-        [
-          "${storage}/database:/database"
-          "${storage}/config:/config"
-        ]
-        ++ lib.mapAttrsToList (k: v: "${k}:${v}") cfg.mounts;
+      volumeMap = {
+        database = "${storage}/database:/database";
+        config = "${storage}/config:/config";
+      };
+
+      volumes = lib.mapAttrsToList (k: v: "${k}:${v}") cfg.mounts;
 
       environment = {
         PUID = config.nps.defaultUid;

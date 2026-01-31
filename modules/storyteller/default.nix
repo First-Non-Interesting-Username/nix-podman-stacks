@@ -79,7 +79,7 @@ in {
 
     services.podman.containers.${name} = {
       image = "registry.gitlab.com/storyteller-platform/storyteller:web-v2.2.2";
-      volumes = ["${storage}:/data"];
+      volumeMap.data = "${storage}:/data";
 
       environment.AUTH_URL = lib.mkIf cfg.oidc.enable "${cfg.containers.${name}.traefik.serviceUrl}/api/v2/auth";
 
