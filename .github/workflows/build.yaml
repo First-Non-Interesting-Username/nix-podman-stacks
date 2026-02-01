@@ -5,10 +5,11 @@ on:
     paths:
       - "**.nix"
       - "flake.lock"
-      - ".github/workflows/ci.yaml"
+      - ".github/workflows/**"
       - "images/**"
       - "**.md"
       - "docs/**"
+
     pull_request:
       branches:
         - main
