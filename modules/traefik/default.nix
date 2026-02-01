@@ -152,12 +152,13 @@ in {
           '';
         };
         bouncerKeyFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
+          type = lib.types.path;
           description = ''
             Path to the file containing the key for the Traefik bouncer.
-            If this is set, a Bouncer will be setup in CrowdSec. Also a new `crowdsec` middleware will be registered in Traefik and added to the `public` chain.
+            If the middleware option is enabled, a Bouncer will be automatically provisioned in CrowdSec. Also a new `crowdsec` middleware will be registered in Traefik and added to the `public` chain.
             This will block requests to exposed services that are detected as malicious by Crowdsec.
+
+            You can generate a bouncer key using openssl: `openssl rand -hex 32`
           '';
         };
       };
@@ -206,7 +207,7 @@ in {
         (lib.mkIf cfg.crowdsec.middleware.enable {
           experimental.plugins.bouncer = {
             moduleName = "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin";
-            version = "v1.4.7";
+            version = "v1.5.0";
           };
         })
       ];
@@ -282,7 +283,7 @@ in {
     };
 
     services.podman.containers.${name} = rec {
-      image = "docker.io/traefik:v3.6.6";
+      image = "docker.io/traefik:v3.6.7";
 
       socketActivation = [
         {
@@ -303,12 +304,12 @@ in {
         }
         // cfg.extraEnv;
 
-      volumes = [
-        "${storage}/letsencrypt:/letsencrypt"
-        "${cfg.staticConfig}:/etc/traefik/traefik.yml:ro"
-        "${yaml.generate "dynamic.yml" cfg.dynamicConfig}:/dynamic/config.yml"
-        "${./config/IP2LOCATION-LITE-DB1.IPV6.BIN}:/plugins/geoblock/IP2LOCATION-LITE-DB1.IPV6.BIN"
-      ];
+      volumeMap = {
+        letsEncrypt = "${storage}/letsencrypt:/letsencrypt";
+        staticConfig = "${cfg.staticConfig}:/etc/traefik/traefik.yml:ro";
+        dynamicConfig = "${yaml.generate "dynamic.yml" cfg.dynamicConfig}:/dynamic/config.yml";
+        geoBlockDb = "${./config/IP2LOCATION-LITE-DB1.IPV6.BIN}:/plugins/geoblock/IP2LOCATION-LITE-DB1.IPV6.BIN";
+      };
 
       labels = {
         "traefik.http.routers.${traefik.name}.service" = "api@internal";

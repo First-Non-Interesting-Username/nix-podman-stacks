@@ -94,7 +94,7 @@ in {
 
     services.podman.containers = {
       ${frontendName} = {
-        image = "docker.io/tombursch/kitchenowl-web:v0.7.4";
+        image = "docker.io/tombursch/kitchenowl-web:v0.7.6";
         environment.BACK_URL = "${backendName}:5000";
 
         stack = stackName;
@@ -111,10 +111,9 @@ in {
       };
 
       ${backendName} = {
-        image = "docker.io/tombursch/kitchenowl-backend:v0.7.4";
-        volumes = [
-          "${storage}/data:/data"
-        ];
+        image = "docker.io/tombursch/kitchenowl-backend:v0.7.6";
+        volumeMap.data = "${storage}/data:/data";
+
         extraEnv =
           {
             JWT_SECRET_KEY.fromFile = cfg.jwtSecretFile;

@@ -1,15 +1,16 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
-  name = "ephemera";
+  name = "shelfmark";
   cfg = config.nps.stacks.${name};
   storage = "${config.nps.storageBaseDir}/${name}";
 
   category = "Media & Downloads";
   description = "Book Downloader";
-  displayName = "Ephemera";
+  displayName = "Shelfmark";
 in {
   imports = import ../mkAliases.nix config lib name [name];
 
@@ -17,8 +18,8 @@ in {
     enable = lib.mkEnableOption name;
     downloadDirectory = lib.mkOption {
       type = lib.types.str;
-      default = "${storage}/ingest";
-      defaultText = lib.literalExpression ''"''${config.nps.storageBaseDir}/${name}/ingest"'';
+      default = "${storage}/books";
+      defaultText = lib.literalExpression ''"''${config.nps.storageBaseDir}/${name}/books"'';
       description = ''
         Final host directory where downloads will be placed.
         To automatically ingest books in other applications such as CWA or Booklore, set this to the respective app's import directory.
@@ -34,7 +35,7 @@ in {
         Extra environment variables to set for the container.
         Variables can be either set directly or sourced from a file (e.g. for secrets).
 
-        See <https://github.com/OrwellianEpilogue/ephemera?tab=readme-ov-file#environment-variables>
+        See <https://github.com/calibrain/shelfmark?tab=readme-ov-file#environment-variables>
       '';
       example = {
         SOME_SECRET = {
@@ -51,56 +52,52 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    # If Flaresolverr is enabled, enable it & connect it to the ephemera network
+    # If Flaresolverr is enabled, enable it & connect it to the shelfmark network
     nps.stacks.flaresolverr.enable = lib.mkIf cfg.flaresolverr.enable true;
     nps.containers.flaresolverr = lib.mkIf cfg.flaresolverr.enable {
       network = [name];
     };
 
-    services.podman.containers.${name} = {
-      image = "ghcr.io/orwellianepilogue/ephemera:2.0.0";
-      volumes = [
-        "${storage}/data:/app/data"
-        "${storage}/downloads:/app/downloads"
-        "${cfg.downloadDirectory}:/app/ingest"
-      ];
-      extraConfig.Container = {
-        HealthCmd = "wget --no-verbose --tries=1 --spider http://127.0.0.1:8286/health";
-        HealthInterval = "30s";
-        HealthTimeout = "10s";
-        HealthRetries = 5;
-        HealthStartPeriod = "10s";
+    services.podman.containers."${name}" = let
+      port = 8084;
+      ingestDir = "/books";
+    in {
+      image = "ghcr.io/calibrain/shelfmark-lite:v1.0.3";
+      environment = {
+        FLASK_PORT = port;
+        INGEST_DIR = ingestDir;
+        SEARCH_MODE = "direct";
+        PUID = config.nps.defaultUid;
+        PGID = config.nps.defaultGid;
+      };
+      volumeMap = let
+        cloudflareBypassConfig = {
+          USING_EXTERNAL_BYPASSER = true;
+          EXT_BYPASSER_URL = "http://flaresolverr:8191";
+        };
+      in {
+        config = "${storage}/config:/config";
+        ingest = "${cfg.downloadDirectory}:${ingestDir}";
+        cfBypassSettings = lib.mkIf cfg.flaresolverr.enable "${pkgs.writers.writeJSON "cf_bypass.json" cloudflareBypassConfig}:/config/plugins/cloudflare_bypass.json";
       };
 
-      extraEnv =
-        {
-          PUID = config.nps.defaultUid;
-          PGID = config.nps.defaultGid;
-          BASE_URL = cfg.containers.${name}.traefik.serviceUrl;
-          AA_BASE_URL = lib.mkDefault "https://annas-archive.org";
-          LG_BASE_URL = lib.mkDefault "https://libgen.bz";
-        }
-        // lib.optionalAttrs cfg.flaresolverr.enable {
-          FLARESOLVERR_URL = "http://${config.nps.containers.flaresolverr.traefik.serviceAddressInternal}";
-        }
-        // cfg.extraEnv;
-
-      stack = name;
-      port = 8286;
+      port = port;
       traefik.name = name;
+      stack = name;
       homepage = {
         inherit category;
         name = displayName;
         settings = {
-          inherit description;
-          icon = "sh-ephemera";
+          description = description;
+          icon = "calibre-web-automated-book-downloader";
         };
       };
       glance = {
-        inherit category description;
-        name = displayName;
+        inherit category;
         id = name;
-        icon = "sh:ephemera";
+        name = displayName;
+        description = description;
+        icon = "di:calibre-web-automated-book-downloader";
       };
     };
   };

@@ -44,7 +44,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
-      image = "ghcr.io/viren070/aiostreams:v2.21.0";
+      image = "ghcr.io/viren070/aiostreams:v2.22.0";
       extraConfig.Container = {
         HealthCmd = "wget -qO- http://localhost:3000/api/v1/status";
         HealthInterval = "1m";
@@ -52,7 +52,7 @@ in {
         HealthRetries = 5;
         HealthStartPeriod = "10s";
       };
-      volumes = ["${storage}/data:/app/data"];
+      volumeMap.data = "${storage}/data:/app/data";
       environment = {
         ADDON_NAME = "AIOStreams";
         ADDON_ID = "aiostreams.viren070.com";

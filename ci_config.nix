@@ -140,6 +140,18 @@ in {
         };
       };
 
+      ddns-updater = {
+        enable = true;
+        settings = [
+          {
+            provider = "duckdns";
+            domain = "example.duckdns.org";
+            token = "{{ file.Read `${dummySecretFile}`}}";
+            ip_version = "ipv4";
+          }
+        ];
+      };
+
       dockdns = {
         enable = true;
         extraEnv.EXAMPLE_COM_API_TOKEN.fromFile = dummySecretFile;
@@ -182,15 +194,6 @@ in {
         };
       };
 
-      ephemera = {
-        enable = true;
-        downloadDirectory = "${config.nps.storageBaseDir}/booklore/bookdrop";
-        extraEnv = {
-          AA_API_KEY.fromFile = dummySecretFile;
-          AA_BASE_URL = "https://some-archive.org";
-        };
-      };
-
       filebrowser = {
         enable = true;
         mounts = {
@@ -219,16 +222,24 @@ in {
       };
 
       flaresolverr.enable = true;
-
       forgejo = {
         enable = true;
-        settings = {
-          DEFAULT = {
-            RUN_MODE = "dev";
-          };
-          other = {
-            SHOW_FOOTER_VERSION = false;
-          };
+        lfsJwtSecretFile = dummySecretFile;
+        secretKeyFile = dummySecretFile;
+        internalTokenFile = dummySecretFile;
+        jwtSecretFile = dummySecretFile;
+        adminProvisioning = {
+          username = "forgejo";
+          email = "admin@test.com";
+          passwordFile = dummySecretFile;
+        };
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+        };
+        db = {
+          type = "postgres";
+          passwordFile = dummySecretFile;
         };
       };
 
@@ -517,6 +528,8 @@ in {
 
       n8n.enable = true;
 
+      navidrome.enable = true;
+
       networking-toolbox.enable = true;
 
       norish = {
@@ -631,6 +644,22 @@ in {
         };
       };
 
+      searxng = {
+        enable = true;
+        secretKeyFile = dummySecretFile;
+        settings.engines = [
+          {
+            name = "dummy.online";
+            engine = "dummy";
+          }
+        ];
+      };
+
+      shelfmark = {
+        enable = true;
+        downloadDirectory = "${config.nps.storageBaseDir}/booklore/bookdrop";
+      };
+
       sshwifty = {
         enable = true;
         settings = {
@@ -688,7 +717,16 @@ in {
               clientSecretHash = dummyHash;
             };
           };
+          qui = {
+            enable = true;
+            oidc = {
+              enable = true;
+              clientSecretFile = dummySecretFile;
+              clientSecretHash = dummyHash;
+            };
+          };
           seerr.enable = true;
+          profilarr.enable = true;
         }
         // lib.genAttrs ["sonarr" "radarr" "bazarr" "prowlarr"] (name: {
           extraEnv."${lib.toUpper name}__AUTH__APIKEY".fromFile = dummySecretFile;
@@ -730,6 +768,15 @@ in {
         enableGrafanaMetricsDashboard = true;
         enableGrafanaAccessLogDashboard = true;
         crowdsec.middleware.bouncerKeyFile = dummySecretFile;
+      };
+
+      trip = {
+        enable = true;
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyHash;
+        };
       };
 
       uptime-kuma.enable = true;

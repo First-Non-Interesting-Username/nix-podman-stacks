@@ -33,9 +33,7 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
       image = "ghcr.io/vogler/free-games-claimer:latest";
-      volumes = [
-        "${storage}/data:/fgc/data"
-      ];
+      volumeMap.data = "${storage}/data:/fgc/data";
 
       port = 6080;
       traefik.name = name;

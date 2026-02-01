@@ -45,14 +45,14 @@ in {
     };
 
     services.podman.containers.${name} = {
-      image = "ghcr.io/home-assistant/home-assistant:2026.1.0";
-      volumes =
-        [
-          "${storage}/config:/config"
-          # User should be in 'dialout' group for HA to access bluetooth module
-          "/run/dbus:/run/dbus:ro"
-        ]
-        ++ lib.optional (cfg.settings != null) "${cfg.settings}:/config/configuration.yaml";
+      image = "ghcr.io/home-assistant/home-assistant:2026.1.3";
+      volumeMap = {
+        config = "${storage}/config:/config";
+        # User should be in 'dialout' group for HA to access bluetooth module
+        dbus = "/run/dbus:/run/dbus:ro";
+        settings = lib.mkIf (cfg.settings != null) "${cfg.settings}:/config/configuration.yaml";
+      };
+
       extraConfig.Container.GroupAdd = "keep-groups";
 
       port = 8123;

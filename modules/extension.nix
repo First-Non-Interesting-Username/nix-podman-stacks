@@ -67,7 +67,7 @@ in {
               apply = map (d: "podman-${d}.service");
               description = ''
                 List of containers that this container depends on.
-                Similar to `dependsOn`, but will automatically apply correct pre- and suffix for
+                Similar to `wants`, but will automatically apply correct pre- and suffix for
                 the generated systemd services.
               '';
             };
@@ -99,6 +99,22 @@ in {
 
                 In case of passing a path (using the `fromFile` attribure), the file will be read and the content will be set as the value of the environment variable.
                 Useful for containers that don't support passing environment variables using the "_FILE" pattern.
+              '';
+            };
+
+            volumeMap = lib.mkOption {
+              type = lib.types.attrsOf lib.types.str;
+              default = {};
+              example = {
+                db = "/host/foo/db:/db";
+                config = "/host/bar/config:/config";
+              };
+              description = ''
+                Attribute set of named volume mappings.
+                This is just a wrapper of the `volumes` option, that allows defining volume mappings using an attrset.
+
+                The stack modules will use the `volumeMap` to set volume mappings for the container. This allows overriding specific
+                volume mappings without having to redefine the entire `volumes` list.
               '';
             };
 
@@ -179,6 +195,27 @@ in {
                     destPath = lib.mkOption {
                       type = lib.types.path;
                       description = "Destination path of the templated file within the container";
+                    };
+                    chown = lib.mkOption {
+                      type = lib.types.nullOr (
+                        lib.types.submodule {
+                          options = {
+                            user = lib.mkOption {
+                              type = lib.types.str;
+                              description = "User that should own the file";
+                            };
+                            group = lib.mkOption {
+                              type = lib.types.str;
+                              description = "Group that should own the file";
+                            };
+                          };
+                        }
+                      );
+                      default = null;
+                      description = ''
+                        Optional user and group that should own the templated file inside the container.
+                        This will run run `podman unshare chown <user:group> <destPath>` on the templated file.
+                      '';
                     };
                   };
                 }
@@ -302,11 +339,18 @@ in {
                   ++ lib.optional (extraTemplateEnv != {}) envFromTemplateLocation
                   ++ lib.optional (extraCommandEnv != {}) envFromCommandLocation;
 
-                volumes =
-                  (config.fileEnvMount |> lib.attrValues |> lib.map (v: "${v.sourcePath}:${v.destPath}"))
-                  ++ (config.templateMount |> lib.map (m: "${mkTemplateMountSource m.destPath}:${m.destPath}"));
+                volumes = lib.mkMerge [
+                  (lib.attrValues config.volumeMap)
+                  (lib.mkAfter ((config.fileEnvMount |> lib.attrValues |> lib.map (v: "${v.sourcePath}:${v.destPath}"))
+                      ++ (config.templateMount |> lib.map (m: "${mkTemplateMountSource m.destPath}:${m.destPath}"))))
+                ];
 
                 extraConfig = {
+                  Container = let
+                    hasHealthCheck = ((config.HealthCmd or "") != "") || ((config.HealthStartupCmd or "") != "");
+                  in {
+                    HealthOnFailure = lib.mkIf hasHealthCheck (lib.mkDefault "kill");
+                  };
                   Unit = {
                     Requires = config.dependsOn ++ config.dependsOnContainer;
                     Wants = config.wants ++ config.wantsContainer;
@@ -342,6 +386,7 @@ in {
                           runtimeInputs = [
                             pkgs.coreutils
                             pkgs.gomplate
+                            globalConf.nps.package
                           ];
                           bashOptions = [
                             "errexit"
@@ -438,10 +483,14 @@ in {
 
                               ${
                                 config.templateMount
-                                |> lib.map (m: ''
-                                  install -D -m 600 /dev/null ${mkTemplateMountSource m.destPath}
-                                  gomplate -f ${m.templatePath} > ${mkTemplateMountSource m.destPath}
-                                '')
+                                |> lib.map (
+                                  m: ''
+                                    install -D -m 600 /dev/null ${mkTemplateMountSource m.destPath}
+                                    gomplate -f ${m.templatePath} > ${mkTemplateMountSource m.destPath}
+                                    ${lib.optionalString (m.chown != null)
+                                      "podman unshare chown ${m.chown.user}:${m.chown.group} ${mkTemplateMountSource m.destPath}"}
+                                  ''
+                                )
                                 |> lib.concatStringsSep "\n"
                               }
                             '';
@@ -458,21 +507,42 @@ in {
 
   config = {
     assertions = [
-      {
-        message = "When using `extraEnv` with `fromFile`, `fromTemplate` or `fromCommand`, exactly one of them must be set.";
-        # For every container check all extraEnv attributes that are attrs.
-        # If yes check that only one of 'fromFile', 'fromTemplate' or 'fromCommand' is set.
-        assertion =
-          config.services.podman.containers
-          |> lib.attrValues
-          |> lib.all (
-            c:
-              c.extraEnv
-              |> lib.attrValues
-              |> lib.all (v: (!lib.isAttrs v) || (builtins.length (builtins.filter (x: x != null) [v.fromFile v.fromTemplate v.fromCommand]) == 1))
-          );
-      }
+      (
+        let
+          baseMessage = "When using `extraEnv` with `fromFile`, `fromTemplate` or `fromCommand`, exactly one of them must be set.";
+
+          failures =
+            lib.concatMap
+            (
+              containerName: let
+                c = config.services.podman.containers.${containerName};
+              in
+                lib.concatMap
+                (
+                  envName: let
+                    v = c.extraEnv.${envName};
+                    count =
+                      builtins.length
+                      (builtins.filter (x: x != null)
+                        [v.fromFile v.fromTemplate v.fromCommand]);
+                  in
+                    lib.optional
+                    (lib.isAttrs v && count != 1)
+                    "container=${containerName}, extraEnv=${envName}, set=${toString count}"
+                )
+                (builtins.attrNames c.extraEnv)
+            )
+            (builtins.attrNames config.services.podman.containers);
+        in {
+          assertion = failures == [];
+          message =
+            baseMessage
+            + "\n\nThe following entries are invalid:\n"
+            + lib.concatStringsSep "\n" failures;
+        }
+      )
     ];
+
     # For every stack, define a default network.
     services.podman.networks = let
       stacks =

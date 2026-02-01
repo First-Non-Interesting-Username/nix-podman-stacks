@@ -18,10 +18,10 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
       image = "docker.io/ckulka/baikal:0.10.1-nginx";
-      volumes = [
-        "${storage}/config:/var/www/baikal/config"
-        "${storage}/data:/var/www/baikal/Specific"
-      ];
+      volumeMap = {
+        config = "${storage}/config:/var/www/baikal/config";
+        specific = "${storage}/data:/var/www/baikal/Specific";
+      };
 
       port = 80;
       traefik.name = name;

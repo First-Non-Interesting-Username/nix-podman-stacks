@@ -98,12 +98,12 @@ in {
 
     services.podman.containers.${name} = {
       image = "ghcr.io/advplyr/audiobookshelf:2.32.1";
-      volumes = [
-        "${mediaStorage}/audiobooks:/audiobooks"
-        "${storage}/podcasts:/podcasts"
-        "${storage}/metadata:/metadata"
-        "${storage}/config:/config"
-      ];
+      volumeMap = {
+        audiobooks = "${mediaStorage}/audiobooks:/audiobooks";
+        podcasts = "${storage}/podcasts:/podcasts";
+        metadata = "${storage}/metadata:/metadata";
+        config = "${storage}/config:/config";
+      };
       port = 80;
       traefik.name = name;
 

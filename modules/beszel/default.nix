@@ -128,19 +128,15 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/henrygd/beszel/beszel:0.17.0";
-        volumes =
-          [
-            "${storage}/data:/beszel_data"
-            "${storage}/beszel_socket:/beszel_socket"
-          ]
-          ++ lib.optional (cfg.settings != null) "${cfg.settings}:/beszel_data/config.yml"
-          ++ lib.optional (
-            cfg.ed25519PrivateKeyFile != null
-          ) "${cfg.ed25519PrivateKeyFile}:/beszel_data/id_ed25519"
-          ++ lib.optional (
-            cfg.ed25519PublicKeyFile != null
-          ) "${cfg.ed25519PublicKeyFile}:/beszel_data/id_ed25519.pub";
+        image = "ghcr.io/henrygd/beszel/beszel:0.18.2";
+        volumeMap =
+          {
+            data = "${storage}/data:/beszel_data";
+            socket = "${storage}/beszel_socket:/beszel_socket";
+          }
+          // lib.optionalAttrs (cfg.settings != null) {config = "${cfg.settings}:/beszel_data/config.yml";}
+          // lib.optionalAttrs (cfg.ed25519PrivateKeyFile != null) {privateKey = "${cfg.ed25519PrivateKeyFile}:/beszel_data/id_ed25519";}
+          // lib.optionalAttrs (cfg.ed25519PublicKeyFile != null) {publicKey = "${cfg.ed25519PublicKeyFile}:/beszel_data/id_ed25519.pub";};
 
         environment = {
           SHARE_ALL_SYSTEMS = true;
@@ -167,10 +163,9 @@ in {
       };
 
       ${agentName} = {
-        image = "ghcr.io/henrygd/beszel/beszel-agent:0.17.0";
-        volumes = [
-          "${storage}/beszel_socket:/beszel_socket"
-        ];
+        image = "ghcr.io/henrygd/beszel/beszel-agent:0.18.2";
+        volumeMap.socket = "${storage}/beszel_socket:/beszel_socket";
+
         fileEnvMount.KEY_FILE = lib.mkIf (cfg.ed25519PublicKeyFile != null) cfg.ed25519PublicKeyFile;
 
         # No way to connect to socket proxy through host network yet

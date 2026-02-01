@@ -2,7 +2,7 @@
 
 ```nix
 {config, ...}: {
-  nps.stacks.ephemera = {
+  nps.stacks.shelfmark = {
     enable = true;
     downloadDirectory = "${config.nps.storageBaseDir}/booklore/bookdrop";
   };

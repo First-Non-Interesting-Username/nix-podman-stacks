@@ -204,14 +204,12 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/immich-app/immich-server:v2.4.1";
-        volumes =
-          [
-            "${mediaStorage}/pictures/immich:${env.UPLOAD_LOCATION}"
-          ]
-          ++ lib.optional (
-            cfg.settings != null && (!cfg.oidc.enable)
-          ) "${cfg.settings}:${env.IMMICH_CONFIG_FILE}";
+        image = "ghcr.io/immich-app/immich-server:v2.5.2";
+        volumeMap = {
+          pictures = "${mediaStorage}/pictures/immich:${env.UPLOAD_LOCATION}";
+          settings = lib.mkIf (cfg.settings != null && (!cfg.oidc.enable)) "${cfg.settings}:${env.IMMICH_CONFIG_FILE}";
+        };
+
         templateMount = lib.optional cfg.oidc.enable {
           templatePath = cfg.settings;
           destPath = env.IMMICH_CONFIG_FILE;
@@ -260,7 +258,7 @@ in {
 
       ${dbName} = {
         image = "docker.io/tensorchord/pgvecto-rs:pg14-v0.2.0";
-        volumes = ["${storage}/pgdata:/var/lib/postgresql/data"];
+        volumeMap.data = "${storage}/pgdata:/var/lib/postgresql/data";
 
         extraEnv = {
           POSTGRES_USER = env.DB_USERNAME;
@@ -278,8 +276,8 @@ in {
       };
 
       ${mlName} = {
-        image = "ghcr.io/immich-app/immich-machine-learning:v2.4.1";
-        volumes = ["${storage}/model-cache:/cache"];
+        image = "ghcr.io/immich-app/immich-machine-learning:v2.5.2";
+        volumeMap.cache = "${storage}/model-cache:/cache";
 
         stack = name;
         glance = {

@@ -182,14 +182,14 @@ in {
     };
 
     services.podman.containers.${name} = {
-      image = "docker.io/crowdsecurity/crowdsec:v1.7.4";
-      volumes =
-        [
-          "${storage}/db:/var/lib/crowdsec/data"
-          "${storage}/config:/etc/crowdsec"
-          "${cfg.settings}:/etc/crowdsec/config.yaml.local"
-        ]
-        ++ (lib.mapAttrsToList (name: file: "${file}:/etc/crowdsec/acquis.d/${name}.yaml") cfg.acquisSettings);
+      image = "docker.io/crowdsecurity/crowdsec:v1.7.6";
+      volumeMap =
+        {
+          data = "${storage}/db:/var/lib/crowdsec/data";
+          config = "${storage}/config:/etc/crowdsec";
+          localConfig = "${cfg.settings}:/etc/crowdsec/config.yaml.local";
+        }
+        // (lib.mapAttrs (name: file: "${file}:/etc/crowdsec/acquis.d/${name}.yaml") cfg.acquisSettings);
       environment = let
         utils = pkgs.callPackage ../utils.nix {inherit config;};
       in {

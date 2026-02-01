@@ -139,12 +139,11 @@ in {
       ${name} = {
         image = "docker.io/vikunja/vikunja:1.0.0-rc1";
         user = config.nps.defaultUid;
-        volumes =
-          [
-            "${storage}/files:/app/vikunja/files"
-            "${yaml.generate "config.yml" cfg.settings}:/etc/vikunja/config.yml"
-          ]
-          ++ lib.optional (cfg.db.type == "sqlite") "${storage}/sqlite:/db";
+        volumeMap = {
+          files = "${storage}/files:/app/vikunja/files";
+          settings = "${yaml.generate "config.yml" cfg.settings}:/etc/vikunja/config.yml";
+          db = lib.mkIf (cfg.db.type == "sqlite") "${storage}/sqlite:/db";
+        };
 
         extraEnv =
           {
@@ -188,7 +187,7 @@ in {
 
       ${dbName} = lib.mkIf (cfg.db.type == "postgres") {
         image = "docker.io/postgres:17";
-        volumes = ["${storage}/postgres:/var/lib/postgresql/data"];
+        volumeMap.data = "${storage}/postgres:/var/lib/postgresql/data";
         extraEnv = {
           POSTGRES_DB = "vikunja";
           POSTGRES_USER = cfg.db.username;

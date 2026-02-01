@@ -15,11 +15,11 @@ let
     changedetection = ./changedetection;
     crowdsec = ./crowdsec;
     davis = ./davis;
+    ddns-updater = ./ddns-updater;
     dockdns = ./dockdns;
     donetick = ./donetick;
     dozzle = ./dozzle;
     docker-socket-proxy = ./docker-socket-proxy;
-    ephemera = ./ephemera;
     filebrowser = ./filebrowser;
     filebrowser-quantum = ./filebrowser-quantum;
     flaresolverr = ./flaresolverr;
@@ -47,6 +47,7 @@ let
     microbin = ./microbin;
     monitoring = ./monitoring;
     n8n = ./n8n;
+    navidrome = ./navidrome;
     networking-toolbox = ./networking-toolbox;
     norish = ./norish;
     ntfy = ./ntfy;
@@ -54,8 +55,11 @@ let
     outline = ./outline;
     pangolin-newt = ./pangolin-newt;
     paperless = ./paperless;
+    papra = ./papra;
     pocketid = ./pocket-id;
     romm = ./romm;
+    searxng = ./searxng;
+    shelfmark = ./shelfmark;
     sshwifty = ./sshwifty;
     stirling-pdf = ./stirling-pdf;
     storyteller = ./storyteller;
@@ -63,6 +67,7 @@ let
     tandoor = ./tandoor;
     timetracker = ./timetracker;
     traefik = ./traefik;
+    trip = ./trip;
     uptime-kuma = ./uptime-kuma;
     vaultwarden = ./vaultwarden;
     vikunja = ./vikunja;

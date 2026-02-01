@@ -19,10 +19,10 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/dgtlmoon/changedetection.io:0.51.4";
-        volumes = [
-          "${storage}:/datastore"
-        ];
+        image = "ghcr.io/dgtlmoon/changedetection.io:0.52.9";
+
+        volumeMap.data = "${storage}:/datastore";
+
         environment = {
           PLAYWRIGHT_DRIVER_URL = "ws://${browserName}:3000";
         };

@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Free diskspace
+        if: false
         uses: easimon/maximize-build-space@master
         with:
           build-mount-path: /nix
@@ -57,6 +58,9 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-24.04
+    concurrency:
+      group: pages-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6

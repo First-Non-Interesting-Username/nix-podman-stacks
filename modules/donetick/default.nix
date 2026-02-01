@@ -165,10 +165,10 @@ in {
     services.podman.containers = {
       ${name} = {
         image = "docker.io/donetick/donetick:v0.1.64";
-        volumes = [
-          "${storage}/db:/donetick-data/"
-          "${yaml.generate "selfhosted.yaml" cfg.settings}:/config/selfhosted.yaml"
-        ];
+        volumeMap = {
+          data = "${storage}/db:/donetick-data/";
+          settings = "${yaml.generate "selfhosted.yaml" cfg.settings}:/config/selfhosted.yaml";
+        };
         environment = {
           DT_ENV = "selfhosted";
           DT_SQLITE_PATH = "/donetick-data/donetick.db";

@@ -89,10 +89,10 @@ in {
     services.podman.containers.${name} = {
       image = "docker.io/glanceapp/glance:v0.8.4";
 
-      volumes = [
-        "${cfg.settings}:/app/config/glance.yml"
-        "${cfg.userCss}:/app/assets/user.css"
-      ];
+      volumeMap = {
+        settings = "${cfg.settings}:/app/config/glance.yml";
+        userCss = "${cfg.userCss}:/app/assets/user.css";
+      };
 
       port = 8080;
       traefik = {
