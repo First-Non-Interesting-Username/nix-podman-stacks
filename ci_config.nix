@@ -32,6 +32,10 @@ in {
           email = "admin@example.com";
           passwordFile = dummySecretFile;
         };
+        oidc = {
+          registerClient = true;
+          clientSecretHash = dummyHash;
+        };
       };
 
       aiostreams = {
