@@ -158,6 +158,7 @@ There is also an [Option Search](https://tarow.github.io/nix-podman-stacks/searc
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/uptime-kuma.svg" style="width:1em;height:1em;" /> [Uptime-Kuma](https://tarow.github.io/nix-podman-stacks/docs/stacks/uptime-kuma.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/vaultwarden.svg" style="width:1em;height:1em;" /> [Vaultwarden](https://tarow.github.io/nix-podman-stacks/docs/stacks/vaultwarden.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/vikunja.svg" style="width:1em;height:1em;" /> [Vikunja](https://tarow.github.io/nix-podman-stacks/docs/stacks/vikunja.html)
+- <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/wallos.svg" style="width:1em;height:1em;" /> [Wallos](https://tarow.github.io/nix-podman-stacks/docs/stacks/wallos.html)
 - <img src="https://cdn.jsdelivr.net/gh/selfhst/icons@main/webp/watchstate.webp" style="width:1em;height:1em;" /> [WatchState](https://tarow.github.io/nix-podman-stacks/docs/stacks/watchstate.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/webtop.webp" style="width:1em;height:1em;" /> [Webtop](https://tarow.github.io/nix-podman-stacks/docs/stacks/webtop.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/wireguard.svg" style="width:1em;height:1em;" /> [wg-easy](https://tarow.github.io/nix-podman-stacks/docs/stacks/wg-easy.html)

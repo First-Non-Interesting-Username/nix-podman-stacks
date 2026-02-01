@@ -71,6 +71,7 @@ let
     uptime-kuma = ./uptime-kuma;
     vaultwarden = ./vaultwarden;
     vikunja = ./vikunja;
+    wallos = ./wallos;
     watchstate = ./watchstate;
     webtop = ./webtop;
     wg-easy = ./wg-easy;
