@@ -149,7 +149,7 @@ in {
       };
 
       ${dbName} = lib.mkIf (cfg.db.type == "mysql") {
-        image = "docker.io/mariadb:12.0.2";
+        image = "docker.io/mariadb:12";
         volumeMap.data = "${storage}/db:/var/lib/mysql";
         extraEnv = {
           MYSQL_DATABASE = "davis";
