@@ -41,6 +41,7 @@ let
     kimai = ./kimai;
     kitchenowl = ./kitchenowl;
     komga = ./komga;
+    leantime = ./leantime;
     lldap = ./lldap;
     mazanoke = ./mazanoke;
     mealie = ./mealie;
