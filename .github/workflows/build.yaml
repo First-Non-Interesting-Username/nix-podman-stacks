@@ -2,17 +2,9 @@ name: "Build"
 on:
   workflow_dispatch:
   push:
-    paths:
-      - "**.nix"
-      - "flake.lock"
-      - ".github/workflows/**"
-      - "images/**"
-      - "**.md"
-      - "docs/**"
-
-  pull_request:
     branches:
       - main
+    pull_request:
 
 jobs:
   build-config:
