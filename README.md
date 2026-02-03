@@ -110,6 +110,7 @@ There is also an [Option Search](https://tarow.github.io/nix-podman-stacks/searc
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/kimai.svg" style="width:1em;height:1em;" /> [Kimai](https://tarow.github.io/nix-podman-stacks/docs/stacks/kimai.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/kitchenowl.svg" style="width:1em;height:1em;" /> [KitchenOwl](https://tarow.github.io/nix-podman-stacks/docs/stacks/kitchenowl.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/komga.svg" style="width:1em;height:1em;" /> [Komga](https://tarow.github.io/nix-podman-stacks/docs/stacks/komga.html)
+- <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/leantime.svg" style="width:1em;height:1em;" /> [Leantime](https://tarow.github.io/nix-podman-stacks/docs/stacks/leantime.html)
 - <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/lldap.svg" style="width:1em;height:1em;" /> [LLDAP](https://tarow.github.io/nix-podman-stacks/docs/stacks/lldap.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/mazanoke.webp" style="width:1em;height:1em;" /> [Mazanoke](https://tarow.github.io/nix-podman-stacks/docs/stacks/mazanoke.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/mealie.svg" style="width:1em;height:1em;" /> [Mealie](https://tarow.github.io/nix-podman-stacks/docs/stacks/mealie.html)
