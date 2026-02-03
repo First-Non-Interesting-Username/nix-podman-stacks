@@ -90,11 +90,11 @@ in {
         client_secret = cfg.oidc.clientSecretHash;
         public = false;
         authorization_policy = name;
-        require_pkce = true;
-        pkce_challenge_method = "S256";
+        require_pkce = false;
+        pkce_challenge_method = "";
         pre_configured_consent_duration = config.nps.stacks.authelia.oidc.defaultConsentDuration;
         redirect_uris = [
-          "${cfg.containers.${name}.traefik.serviceUrl}/api/oidc/callback"
+          "${cfg.containers.${name}.traefik.serviceUrl}/oidc/callback"
         ];
         token_endpoint_auth_method = "client_secret_post";
         claims_policy = name;
@@ -126,10 +126,13 @@ in {
           publicUserfile = "${storage}/userfiles:/var/www/html/public/userfiles";
           userfile = "${storage}/userfiles:/var/www/html/userfiles";
           plugins = "${storage}/config:/var/www/html/app/Plugins";
-          logs = "${storage}/cache:/var/www/html/storage/logs";
+          logs = "${storage}/logs:/var/www/html/storage/logs";
         };
 
-        addCapabilities = ["CHOWN" "SETGID" "SETUID"];
+        # Seems like Leantime will always run as 1000:1000, map user to avoid permission issues for now
+        # https://github.com/Leantime/leantime/issues/3134
+        user = "0:0";
+        extraConfig.Container.UserNS = "keep-id:uid=1000,gid=1000";
 
         extraEnv = let
           db = cfg.containers.${dbName}.extraEnv;
@@ -141,6 +144,7 @@ in {
             LEAN_SESSION_PASSWORD.fromFile = cfg.sessionPasswordFile;
             LEAN_APP_URL = cfg.containers.${name}.traefik.serviceUrl;
             LEAN_ALLOW_TELEMETRY = false;
+            LEAN_SESSION_SECURE = true;
 
             LEAN_DB_HOST = dbName;
             LEAN_DB_USER = db.MYSQL_USER;
@@ -152,7 +156,7 @@ in {
             LEAN_OIDC_ENABLE = true;
             LEAN_OIDC_CLIENT_ID = name;
             LEAN_OIDC_CLIENT_SECRET.fromFile = cfg.oidc.clientSecretFile;
-            LEAN_OIDC_PROVIDER_URL = config.nps.stacks.authelia.traefik.serviceUrl;
+            LEAN_OIDC_PROVIDER_URL = config.nps.containers.authelia.traefik.serviceUrl;
             LEAN_OIDC_CREATE_USER = true;
             LEAN_OIDC_DEFAULT_ROLE = 20; # Editor
           };
