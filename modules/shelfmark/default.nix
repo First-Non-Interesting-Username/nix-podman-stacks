@@ -69,6 +69,7 @@ in {
         SEARCH_MODE = "direct";
         PUID = config.nps.defaultUid;
         PGID = config.nps.defaultGid;
+        ONBOARDING = false;
       };
       volumeMap = let
         cloudflareBypassConfig = {
