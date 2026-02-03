@@ -67,7 +67,8 @@ in {
         {
           FLASK_PORT = port;
           INGEST_DIR = ingestDir;
-          SEARCH_MODE = "direct";
+          SEARCH_MODE = "universal";
+          OPENLIBRARY_ENABLED = true;
           PUID = config.nps.defaultUid;
           PGID = config.nps.defaultGid;
           ONBOARDING = false;
