@@ -15,7 +15,7 @@
   displayName = "Norish";
   description = "Recipe Management";
 in {
-  imports = import ../mkAliases.nix config lib name [name browserName];
+  imports = import ../mkAliases.nix config lib name [name dbName redisName browserName];
 
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
