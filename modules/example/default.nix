@@ -166,6 +166,7 @@ in {
           lib.optional (cfg.db.type == "postgres") dbName
           ++ [redisName];
 
+        # Needed for multi-container stacks. Will create a shared network for all containers sharing the same stack
         stack = name;
 
         volumeMap = {
