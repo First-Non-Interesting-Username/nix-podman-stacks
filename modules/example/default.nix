@@ -97,7 +97,6 @@ in {
           If set to "postgres", the passwordFile option must be set.
         '';
       };
-
       passwordFile = lib.mkOption {
         type = lib.types.path;
         description = "The file containing the database password.";
