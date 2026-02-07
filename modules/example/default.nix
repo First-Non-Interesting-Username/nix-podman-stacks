@@ -5,13 +5,17 @@
 }: let
   # The name of your stack/service
   name = "example";
+
+  # Reference to the stack config (this)
   cfg = config.nps.stacks.${name};
 
-  # Databases, if you don't need them, delete or comment out these lines
+  # Optional database & cache, if you don't need them, delete these lines
   dbName = "${name}-db";
   redisName = "${name}-redis";
 
-  # Comment out these lines if you wish
+  # Reference to storage used for volumes.
+  # Delete if no volumes are required.
+  # Prefer to use "storage" for volumes and "mediaStorage" only large media files such as videos etc.
   storage = "${config.nps.storageBaseDir}/${name}";
   mediaStorage = "${config.nps.mediaStorageBaseDir}";
 
@@ -21,7 +25,8 @@
   displayName = "Example Stack";
 in {
   imports = import ../mkAliases.nix config lib name [
-    # Again, if you don't need databases, comment out dbName and redisName
+    # Provides aliases from nps.stacks.${name}.containers.<containername> & nps.containers.<containername> to services.podman.containers.<containername>)
+    # Remove non existing containers from this list
     name
     dbName
     redisName
@@ -30,8 +35,26 @@ in {
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
     # Each service handles users differently, so you will need to determine the appropriate configuration.
-    # In some (or most) cases you don't have to do anything
-    # In cases where you need to declare a user, it will likely be set via environment variables.
+    # If the service allows for automatic admin provisioning (e.g. via env variables), include this block.
+    adminProvisioning = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Whether to automatically create an admin user.
+        '';
+      };
+      username = lib.mkOption {
+        type = lib.types.str;
+        default = "admin";
+        description = "Username for the admin user";
+      };
+      passwordFile = lib.mkOption {
+        type = lib.types.path;
+        default = null;
+        description = "Path to a file containing the admin user password";
+      };
+    };
 
     # If the service doesn't provide OIDC delete this block
     oidc = {
@@ -45,7 +68,10 @@ in {
 
       clientSecretFile = (import ../authelia/options.nix lib).clientSecretFile;
       clientSecretHash = (import ../authelia/options.nix lib).derivableClientSecretHash cfg.oidc.clientSecretFile;
-       adminGroup = lib.mkOption {
+
+      # Some services don't support role mapping (user/admin) based on groups.
+      # In that case, only include the userGroup
+      adminGroup = lib.mkOption {
         type = lib.types.str;
         default = "${name}_admin";
         description = "Users of this group will be assigned admin rights";
@@ -57,8 +83,9 @@ in {
       };
     };
 
-    # Comment out or delete if not needed
+    # Include block if service needs a separate database
     db = {
+      # "type" option is only needed for services supporting multiple databases
       type = lib.mkOption {
         type = lib.types.enum [
           "sqlite"
@@ -66,9 +93,9 @@ in {
         ];
         default = "sqlite";
         description = ''
-          Type of the database to use. 
+          Type of the database to use.
           If set to "postgres", the passwordFile option must be set.
-          '';
+        '';
       };
 
       passwordFile = lib.mkOption {
@@ -77,6 +104,9 @@ in {
       };
     };
 
+    # Extra environment variables that will be passed through to the service.
+    # Useful for services that allow lots of configurations via environment variables
+    # If not applicable, remove block
     extraEnv = lib.mkOption {
       type = (import ../types.nix lib).extraEnv;
       default = {};
@@ -86,16 +116,18 @@ in {
       '';
     };
 
-    # You can obviously add more options if you want/need
+    # You can add more options if they seem useful for the provided service
   };
 
   config = lib.mkIf cfg.enable {
+    # Creates the groups in LLDAP
     nps.stacks.lldap.bootstrap.groups = lib.mkIf cfg.oidc.enable {
       ${cfg.oidc.userGroup} = {};
       ${cfg.oidc.adminGroup} = {};
     };
 
     nps.stacks.authelia = lib.mkIf cfg.oidc.enable {
+      # Check service documentation for correct values for these settings (e.g. PKCE, redirect URIS, ...)
       oidc.clients.${name} = {
         client_name = displayName;
         client_secret = cfg.oidc.clientSecretHash;
@@ -114,7 +146,11 @@ in {
         rules = [
           {
             policy = config.nps.stacks.authelia.defaultAllowPolicy;
-            subject = "group:${cfg.oidc.userGroup}";
+            subject = [
+              # Include only existing groups here
+              "group:${cfg.oidc.userGroup}"
+              "group:${cfg.oidc.adminGroup}"
+            ];
           }
         ];
       };
@@ -123,45 +159,52 @@ in {
     services.podman.containers = {
       ${name} = {
         # Replace with the correct image
-        image = "docker.io/example/image:latest";
+        # Use stable tag (not "latest"), Renovate will update images automatically
+        image = "docker.io/example/image:v1.2.3";
 
-        # At this point, you should know what to do if you don't need a database
-        dependsOnContainer =
-          lib.optional (cfg.db.type != "sqlite") dbName
+        # Declare dependencies to other containers. Remove if not applicable
+        wantsContainer =
+          lib.optional (cfg.db.type == "postgres") dbName
           ++ [redisName];
 
         stack = name;
 
         volumeMap = {
-          # Adjust if needed (needed)
+          # Adjust volumes to what the service needs
           data = "${storage}/data:/app/data";
           config = "${storage}/config:/app/config";
           media = "${mediaStorage}:/media";
         };
 
-        # Environment variables:
-        # Readable in /nix/store
-        environment = {
-          APP_PORT = "8080";
-          DB_TYPE = cfg.db.type;
-          REDIS_HOST = redisName;
-        };
-
-        # Secrets
+        # Environment configuration
         extraEnv =
           {
-            DB_HOST = lib.mkIf (cfg.db.type != "sqlite") dbName;
-            DB_PASS.fromFile = lib.mkIf (cfg.db.type != "sqlite") cfg.db.passwordFile;
-
-            OIDC_CLIENT_SECRET.fromFile = lib.mkIf cfg.oidc.enable cfg.oidc.clientSecretFile;
+            APP_PORT = "8080";
+            DB_TYPE = cfg.db.type;
+            DB_HOST = lib.mkIf (cfg.db.type == "postgres") dbName;
+            REDIS_HOST = redisName;
+            DB_PASS.fromFile = lib.mkIf (cfg.db.type == "postgres" "sqlite") cfg.db.passwordFile;
+          }
+          // lib.optionalAttrs cfg.oidc.enable {
+            # OIDC config will differ slightly for every service. Adjust variables as needed
+            OIDC_AUTH_ENABLED = true;
+            OIDC_PROVIDER_NAME = "Authelia";
+            OIDC_SIGNUP_ENABLED = true;
+            OIDC_CONFIGURATION_URL = "${config.nps.containers.authelia.traefik.serviceUrl}/.well-known/openid-configuration";
+            OIDC_CLIENT_ID = name;
+            OIDC_CLIENT_SECRET.fromFile = cfg.oidc.clientSecretFile;
+            OIDC_ADMIN_GROUP = cfg.oidc.adminGroup;
+            OIDC_USER_GROUP = cfg.oidc.userGroup;
           }
           // cfg.extraEnv;
 
-        # This is the internal (in container) port for this service
+        # This is the internal (in container) port that Traefik will forward traffic to
         port = 8080;
-        traefik = {
-          name = name;
-        };
+
+        # Name that will be used to register service within Traefik
+        traefik.name = name;
+
+        # Dashboard configurations
         homepage = {
           inherit category;
           name = displayName;
@@ -179,18 +222,17 @@ in {
         };
       };
 
-      # Delete or comment out if you don't need databases
+      # Delete if stack doesn't require a database
       ${dbName} = lib.mkIf (cfg.db.type == "postgres") {
-        image = "docker.io/postgres:16-alpine";
+        image = "docker.io/postgres:18";
         stack = name;
-        volumeMap = {
-          data = "${storage}/db:/var/lib/postgresql/data";
-        };
+        volumeMap.data = "${storage}/postgres:/var/lib/postgresql";
         extraEnv = {
           POSTGRES_DB = "example";
           POSTGRES_USER = "example";
           POSTGRES_PASSWORD.fromFile = cfg.db.passwordFile;
         };
+
         glance = {
           parent = name;
           name = "Postgres";
@@ -199,9 +241,9 @@ in {
         };
       };
 
-      # Delete or comment out if you don't need redis
+      # Delete if stack doesn't require redis
       ${redisName} = {
-        image = "docker.io/redis:alpine";
+        image = "docker.io/redis:8";
         stack = name;
         glance = {
           parent = name;
