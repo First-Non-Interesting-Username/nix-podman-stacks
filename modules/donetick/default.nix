@@ -113,7 +113,6 @@ in {
             cfg.containers.${name}.traefik.serviceUrl
             # the below are required for the android app to work
             "https://localhost"
-            "capacitor://localhost"
           ];
           serve_frontend = true;
         };
@@ -164,7 +163,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "docker.io/donetick/donetick:v0.1.64";
+        image = "docker.io/donetick/donetick:v0.1.71";
         volumeMap = {
           data = "${storage}/db:/donetick-data/";
           settings = "${yaml.generate "selfhosted.yaml" cfg.settings}:/config/selfhosted.yaml";
