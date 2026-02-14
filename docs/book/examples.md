@@ -183,7 +183,7 @@ This can be achieved as followed:
     # Create LLDAP group
     lldap.bootstrap.groups."homepage_user" = {};
 
-    # Allow only users in the created "homepage_user" group to access the homepage container
+    # Allow only users in the created "homepage_user" group to access the homepage dashboard
     # For others, the default policy (deny) will apply
     homepage.containers.homepage = {
       forwardAuth = {
