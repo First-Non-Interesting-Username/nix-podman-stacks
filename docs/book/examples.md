@@ -171,6 +171,35 @@ If forwardAuth is enabled, the Authelia middleware will also be applied automati
 
 For details on the `forwardAuth` container option check the [Container Options](/container-options#services.podman.containers.<name>.forwardAuth.enable)
 
+### Forward Auth - Group based access
+
+In the previous example, every access required `two_factor` authentication to access the resource.
+A common use-case is, to only allow certain users with specific groups to access a resource.
+This can be achieved as followed:
+
+```nix
+{config, ...}: {
+  nps.stacks = {
+    # Create LLDAP group
+    lldap.bootstrap.groups."homepage_user" = {};
+
+    # Allow only users in the created "homepage_user" group to access the homepage container
+    # For others, the default policy (deny) will apply
+    homepage.containers.homepage = {
+      forwardAuth = {
+        enable = true;
+        rules = [
+          {
+            subject = ["group:homepage_user"];
+            policy = "one_factor";
+          }
+        ];
+      };
+    };
+  };
+}
+```
+
 ## Gatus
 
 ### Simple Service Monitor

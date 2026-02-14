@@ -82,11 +82,10 @@ in {
       type = lib.types.enum ["one_factor" "two_factor"];
       default = "one_factor";
       description = ''
-        Default policy to apply for allowed access. Will be used as a default for Access Control Rules as well as OIDC Authorization Policies if no rules apply.
+        Default policy to apply for allowed access. Will be used as a default for OIDC Authorization Policies.
 
         See
         - <https://www.authelia.com/configuration/identity-providers/openid-connect/clients/#authorization_policy>
-        - <https://www.authelia.com/configuration/security/access-control/#rules>
       '';
     };
     oidc = {
@@ -293,7 +292,7 @@ in {
         password_reset.disable = lib.mkDefault true;
         password_change.disable = lib.mkDefault true;
       };
-      access_control.default_policy = config.nps.stacks.${name}.defaultAllowPolicy;
+      access_control.default_policy = lib.mkDefault "deny";
       notifier.filesystem.filename = "/notifier/notification.txt";
       session =
         {
