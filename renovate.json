@@ -33,7 +33,8 @@
         "/beszel/",
         "/guacamole/",
         "/kitchenowl/",
-        "/adventurelog/"
+        "/adventurelog/",
+        "/kaneo/"
       ],
       "groupName": "{{parentDir}}"
     },

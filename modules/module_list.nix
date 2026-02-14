@@ -37,6 +37,7 @@ let
     immich = ./immich;
     ittools = ./it-tools;
     jotty = ./jotty;
+    kaneo = ./kaneo;
     karakeep = ./karakeep;
     kimai = ./kimai;
     kitchenowl = ./kitchenowl;

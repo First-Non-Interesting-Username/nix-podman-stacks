@@ -106,6 +106,7 @@ There is also an [Option Search](https://tarow.github.io/nix-podman-stacks/searc
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/immich.svg" style="width:1em;height:1em;" /> [Immich](https://tarow.github.io/nix-podman-stacks/docs/stacks/immich.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/it-tools.svg" style="width:1em;height:1em;" /> [IT-Tools](https://tarow.github.io/nix-podman-stacks/docs/stacks/it-tools.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/jotty.svg" style="width:1em;height:1em;" /> [Jotty](https://tarow.github.io/nix-podman-stacks/docs/stacks/jotty.html)
+- <img src="https://cdn.jsdelivr.net/gh/selfhst/icons@main/webp/kaneo.webp" style="width:1em;height:1em;" /> [Kaneo](https://tarow.github.io/nix-podman-stacks/docs/stacks/kaneo.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/karakeep.svg" style="width:1em;height:1em;" /> [Karakeep](https://tarow.github.io/nix-podman-stacks/docs/stacks/karakeep.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/kimai.svg" style="width:1em;height:1em;" /> [Kimai](https://tarow.github.io/nix-podman-stacks/docs/stacks/kimai.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/kitchenowl.svg" style="width:1em;height:1em;" /> [KitchenOwl](https://tarow.github.io/nix-podman-stacks/docs/stacks/kitchenowl.html)
