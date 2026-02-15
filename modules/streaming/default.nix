@@ -625,7 +625,7 @@ in {
           };
 
         ${seerrName} = lib.mkIf cfg.seerr.enable {
-          image = "ghcr.io/seerr-team/seerr:develop";
+          image = "ghcr.io/seerr-team/seerr:v3.0.1";
           user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
           volumeMap.config = "${storage}/${seerrName}/config:/app/config";
           environment.PORT = 5055;
