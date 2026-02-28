@@ -292,7 +292,7 @@ in {
         password_reset.disable = lib.mkDefault true;
         password_change.disable = lib.mkDefault true;
       };
-
+      access_control.default_policy = config.nps.stacks.${name}.defaultAllowPolicy;
       notifier.filesystem.filename = "/notifier/notification.txt";
       session =
         {

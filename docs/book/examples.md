@@ -133,12 +133,16 @@ The following two configurations are equivalent:
 
 ```nix
 {config, ...}: {
+
+
+
   # Apply the authelia middleware for the Homepage service
   nps.stacks.homepage.containers.homepage = {
     traefik.middleware.authelia.enable = true;
   };
-  # Setup a rule for the Homepage service domain.
+
   nps.stacks.authelia.settings = {
+    # Setup a rule for the Homepage service domain.
     access_control.rules = [
       {
         domain = config.nps.containers.homepage.traefik.serviceHost;
