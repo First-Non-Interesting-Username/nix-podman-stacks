@@ -292,7 +292,10 @@ in {
         password_reset.disable = lib.mkDefault true;
         password_change.disable = lib.mkDefault true;
       };
-      access_control.default_policy = lib.mkDefault "deny";
+      access_control.default_policy =
+        if ((cfg.settings.access_control.rules or []) != [])
+        then (lib.mkDefault "deny")
+        else (lib.mkDefault cfg.defaultAllowPolicy);
       notifier.filesystem.filename = "/notifier/notification.txt";
       session =
         {
